@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Veterinários - AgroLink{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Veterinários</h1>
+
+<div class="card-grid">
+    {% for v in vets %}
+        <article class="card">
+            <h3>{{ v.name }}</h3>
+            <p class="card-meta">
+                Veterinário{% if v.city %} • {{ v.city }}{% endif %}
+            </p>
+            <p class="card-description">
+                {{ v.bio or "Profissional disponível para atendimentos e consultorias." }}
+            </p>
+            <a href="{{ url_for('message_vet', vet_id=v.id) }}" class="btn btn-secondary btn-full">
+                Entrar em contato
+            </a>
+        </article>
+    {% else %}
+        <p>Ainda não há veterinários cadastrados.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
