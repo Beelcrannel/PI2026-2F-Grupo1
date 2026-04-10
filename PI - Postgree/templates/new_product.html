@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Novo produto - AgroLink{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Cadastrar produto</h1>
+
+<form method="post" class="form form-card" enctype="multipart/form-data">
+    <label class="form-field">
+        <span>Título</span>
+        <input type="text" name="title" required>
+    </label>
+
+    <label class="form-field">
+        <span>Descrição</span>
+        <textarea name="description" rows="4" required></textarea>
+    </label>
+
+    <label class="form-field">
+        <span>Preço (R$) - opcional</span>
+        <input type="text" name="price" placeholder="Ex: 1500,00">
+    </label>
+
+    <label class="form-field">
+        <span>Imagem do produto (opcional)</span>
+        <input type="file" name="product_image" accept="image/*">
+    </label>
+
+    <button type="submit" class="btn btn-primary btn-full">Salvar produto</button>
+</form>
+{% endblock %}
+
