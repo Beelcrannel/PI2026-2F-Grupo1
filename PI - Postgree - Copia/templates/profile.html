@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil de {{ user.name }} - AgroLink{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Perfil de {{ user.name }}</h1>
+
+<section class="card">
+    {% if user.profile_image %}
+        <img src="{{ url_for('static', filename=user.profile_image) }}" alt="Foto de {{ user.name }}" class="avatar">
+    {% endif %}
+    <p><strong>Tipo de conta:</strong>
+        {% if user.role == 'produtor' %}
+            Produtor
+        {% elif user.role == 'veterinario' %}
+            Veterinário
+            {% if user.is_vet_verified %}
+                <span class="badge badge-soft-success">verificado</span>
+            {% else %}
+                <span class="badge badge-soft">aguardando verificação</span>
+            {% endif %}
+        {% else %}
+            Usuário comum
+        {% endif %}
+    </p>
+    <p><strong>E-mail:</strong> {{ user.email }}</p>
+    {% if user.city %}
+        <p><strong>Cidade:</strong> {{ user.city }}</p>
+    {% endif %}
+    {% if user.bio %}
+        <p><strong>Sobre:</strong> {{ user.bio }}</p>
+    {% endif %}
+    {% if user.crmv %}
+        <p><strong>CRMV:</strong> {{ user.crmv }}</p>
+    {% endif %}
+
+    {% if g.user and g.user.id != user.id %}
+        <a href="{{ url_for('chat', user_id=user.id) }}" class="btn btn-primary">
+            Enviar mensagem
+        </a>
+    {% endif %}
+</section>
+
+{% if user.role == 'produtor' %}
+    <section class="section">
+        <div class="section-header">
+            <h2>Produtos deste produtor</h2>
+        </div>
+        <div class="card-grid">
+            {% for p in products %}
+                <article class="card">
+                    <h3>{{ p.title }}</h3>
+                    <p class="card-description">{{ p.description|truncate(160) }}</p>
+                    {% if p.price %}
+                        <p class="price">R$ {{ p.price }}</p>
+                    {% endif %}
+                </article>
+            {% else %}
+                <p>Este produtor ainda não cadastrou produtos.</p>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+{% endblock %}
+

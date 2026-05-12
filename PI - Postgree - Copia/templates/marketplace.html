@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Mercado - AgroLink{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Mercado</h1>
+
+<div class="card-grid">
+    {% for p in products %}
+        <article class="card">
+            {% if p.image_path %}
+                <img src="{{ url_for('static', filename=p.image_path) }}" alt="Imagem do produto {{ p.title }}" class="card-image">
+            {% endif %}
+            <h3>{{ p.title }}</h3>
+            <p class="card-meta">
+                Por {{ p.producer_name }}{% if p.city %} • {{ p.city }}{% endif %}
+            </p>
+            <p class="card-description">{{ p.description|truncate(160) }}</p>
+            {% if p.price %}
+                <p class="price">R$ {{ p.price }}</p>
+            {% endif %}
+            <div class="marketplace-actions">
+                <a href="{{ url_for('profile', user_id=p.producer_id) }}" class="btn btn-secondary btn-sm">
+                    Ver produtor
+                </a>
+                {% if g.user and g.user.id != p.producer_id %}
+                    <a href="{{ url_for('chat', user_id=p.producer_id, product_id=p.id) }}" class="btn btn-primary btn-sm">
+                        Mandar mensagem
+                    </a>
+                {% endif %}
+            </div>
+        </article>
+    {% else %}
+        <p>Nenhum produto cadastrado ainda.</p>
+    {% endfor %}
+  </div>
+{% endblock %}
+
