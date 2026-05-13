@@ -12,6 +12,8 @@
     <p><strong>Tipo de conta:</strong>
         {% if user.role == 'produtor' %}
             Produtor
+        {% elif user.role == 'servidor' %}
+            Prestador de serviços
         {% elif user.role == 'veterinario' %}
             Veterinário
             {% if user.is_vet_verified %}
