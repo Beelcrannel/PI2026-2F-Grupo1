@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Meu painel - CONCOOP{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Meu painel</h1>
+
+<div class="grid-2">
+    <section class="card">
+        <h2>Meu perfil</h2>
+        {% if g.user.profile_image %}
+            <img src="{{ url_for('static', filename=g.user.profile_image) }}" alt="Minha foto de perfil" class="avatar">
+        {% endif %}
+        <p><strong>Nome:</strong> {{ g.user.name }}</p>
+        <p><strong>E-mail:</strong> {{ g.user.email }}</p>
+        <p><strong>Tipo de conta:</strong>
+            {% if g.user.role == 'produtor' %}
+                Produtor
+            {% elif g.user.role == 'servidor' %}
+                Prestador de serviços
+            {% elif g.user.role == 'veterinario' %}
+                Veterinário
+            {% else %}
+                Usuário comum
+            {% endif %}
+        </p>
+        {% if g.user.city %}
+            <p><strong>Cidade:</strong> {{ g.user.city }}</p>
+        {% endif %}
+        {% if g.user.role == 'veterinario' %}
+            <p>
+                <strong>Status:</strong>
+                {% if g.user.is_vet_verified %}
+                    <span class="badge badge-soft-success">veterinário verificado</span>
+                {% else %}
+                    <span class="badge badge-soft">aguardando verificação de CRMV</span>
+                {% endif %}
+            </p>
+        {% endif %}
+        <a href="{{ url_for('profile', user_id=g.user.id) }}" class="btn btn-secondary btn-sm">Ver meu perfil público</a>
+    </section>
+
+    <section class="card">
+        <h2>Atalhos</h2>
+        {% if g.user.role == 'produtor' %}
+            <a href="{{ url_for('new_product') }}" class="btn btn-primary btn-full">Cadastrar novo produto</a>
+        {% endif %}
+        <a href="{{ url_for('marketplace') }}" class="btn btn-outline btn-full">Ver mercado</a>
+        <a href="{{ url_for('vets') }}" class="btn btn-outline btn-full">Listar veterinários</a>
+    </section>
+</div>
+
+{% if g.user.role == 'Prestador de serviços' %}
+    <section class="section">
+        <div class="section-header">
+            <h2>Meus serviços</h2>
+            <a href="{{ url_for('new_service') }}">Novo serviço</a>
+        </div>
+tem q terminar isso ai
+
+
+{% if g.user.role == 'produtor' %}
+    <section class="section">
+        <div class="section-header">
+            <h2>Meus produtos</h2>
+            <a href="{{ url_for('new_product') }}">Novo produto</a>
+        </div>
+        <div class="card-grid">
+            {% for p in products %}
+                <article class="card">
+                    <h3>{{ p.title }}</h3>
+                    <p class="card-description">{{ p.description|truncate(140) }}</p>
+                    {% if p.price %}
+                        <p class="price">R$ {{ p.price }}</p>
+                    {% endif %}
+                </article>
+            {% else %}
+                <p>Você ainda não cadastrou produtos.</p>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+<section class="section">
+    <div class="section-header">
+        <h2>Mensagens recebidas</h2>
+        {% if g.unread_count and g.unread_count > 0 %}
+            <span class="badge badge-soft">{{ g.unread_count }} novas</span>
+        {% endif %}
+    </div>
+    <div class="card-grid">
+        {% for m in received_messages %}
+            <article class="card">
+                {% if g.user.role == 'produtor' %}
+                    <p class="card-meta">De veterinário: {{ m.vet_name }}</p>
+                {% elif g.user.role == 'veterinario' %}
+                    <p class="card-meta">De produtor: {{ m.producer_name }}</p>
+                {% else %}
+                    <p class="card-meta">Remetente</p>
+                {% endif %}
+                <p class="card-description">{{ m.content }}</p>
+                <p class="card-meta">Enviada em {{ m.created_at }}</p>
+            </article>
+        {% else %}
+            <p>Nenhuma mensagem recebida.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-header">
+        <h2>Mensagens enviadas</h2>
+    </div>
+    <div class="card-grid">
+        {% for m in sent_messages %}
+            <article class="card">
+                <p class="card-meta">Para {{ m.receiver_name }}</p>
+                <p class="card-description">{{ m.content }}</p>
+                <p class="card-meta">Enviada em {{ m.created_at }}</p>
+            </article>
+        {% else %}
+            <p>Você ainda não enviou mensagens.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
