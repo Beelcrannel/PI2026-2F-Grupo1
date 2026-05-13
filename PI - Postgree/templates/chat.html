@@ -16,6 +16,8 @@
                 <p class="card-meta">
                     {% if other.role == 'produtor' %}
                         Produtor
+                    {% elif other.role == 'servidor' %}
+                        Prestador de serviços
                     {% elif other.role == 'veterinario' %}
                         Veterinário
                     {% else %}

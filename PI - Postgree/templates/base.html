@@ -13,6 +13,7 @@
             <nav class="nav">
                 <a href="{{ url_for('index') }}">Início</a>
                 <a href="{{ url_for('marketplace') }}">Mercado</a>
+                <a href="{{ url_for('services') }}">Serviços</a>
                 <a href="{{ url_for('vets') }}">Veterinários</a>
                 {% if g.user and g.user.is_admin %}
                     <a href="{{ url_for('admin_dashboard') }}">Admin</a>

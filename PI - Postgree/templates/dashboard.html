@@ -16,6 +16,8 @@
         <p><strong>Tipo de conta:</strong>
             {% if g.user.role == 'produtor' %}
                 Produtor
+            {% elif g.user.role == 'servidor' %}
+                Prestador de serviços
             {% elif g.user.role == 'veterinario' %}
                 Veterinário
             {% else %}
@@ -47,6 +49,15 @@
         <a href="{{ url_for('vets') }}" class="btn btn-outline btn-full">Listar veterinários</a>
     </section>
 </div>
+
+{% if g.user.role == 'Prestador de serviços' %}
+    <section class="section">
+        <div class="section-header">
+            <h2>Meus serviços</h2>
+            <a href="{{ url_for('new_service') }}">Novo serviço</a>
+        </div>
+tem q terminar isso ai
+
 
 {% if g.user.role == 'produtor' %}
     <section class="section">
