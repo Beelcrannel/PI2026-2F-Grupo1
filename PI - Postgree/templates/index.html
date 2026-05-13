@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}CONCOOP - Conectando o campo{% endblock %}
+{% block title %}AgroLink - Conectando o campo{% endblock %}
 
 {% block content %}
 <section class="hero hero-slim">
@@ -29,8 +29,6 @@
                 <p class="card-meta">
                     {% if g.user.role == 'produtor' %}
                         Produtor
-                    {% elif g.user.role == 'servidor' %}
-                        Prestador de serviços
                     {% elif g.user.role == 'veterinario' %}
                         Veterinário
                     {% else %}

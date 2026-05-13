@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}CONCOOP{% endblock %}</title>
+    <title>{% block title %}AgroLink{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header class="header">
         <div class="container header-content">
-            <a href="{{ url_for('index') }}" class="logo">CONCOOP</a>
+            <a href="{{ url_for('index') }}" class="logo">AgroLink</a>
             <nav class="nav">
                 <a href="{{ url_for('index') }}">Início</a>
                 <a href="{{ url_for('marketplace') }}">Mercado</a>
-                <a href="{{ url_for('services') }}">Serviços</a>
                 <a href="{{ url_for('vets') }}">Veterinários</a>
                 {% if g.user and g.user.is_admin %}
                     <a href="{{ url_for('admin_dashboard') }}">Admin</a>
@@ -54,7 +53,7 @@
     </main>
 
     <footer class="footer">
-        <p>&copy; {{ 2026 }} CONCOOP - Conectando produtores, veterinários e o campo.</p>
+        <p>&copy; {{ 2026 }} AgroLink - Conectando produtores, veterinários e o campo.</p>
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

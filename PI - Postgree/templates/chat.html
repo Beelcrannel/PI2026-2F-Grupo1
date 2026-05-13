@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Chat com {{ other.name }} - CONCOOP{% endblock %}
+{% block title %}Chat com {{ other.name }} - AgroLink{% endblock %}
 
 {% block content %}
 <h1 class="page-title">Chat com {{ other.name }}</h1>
@@ -16,8 +16,6 @@
                 <p class="card-meta">
                     {% if other.role == 'produtor' %}
                         Produtor
-                    {% elif other.role == 'servidor' %}
-                        Prestador de serviços
                     {% elif other.role == 'veterinario' %}
                         Veterinário
                     {% else %}

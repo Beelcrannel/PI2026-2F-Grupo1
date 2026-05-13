@@ -69,7 +69,7 @@ class PostgresCompatConnection:
 
 def connect_db():
     try:
-        raw_conn = psycopg2.connect(DEFAULT_DATABASE_URL, client_encoding="utf8")
+        raw_conn = psycopg2.connect(DEFAULT_DATABASE_URL)
         return PostgresCompatConnection(raw_conn)
     except OperationalError as exc:
         raise RuntimeError(

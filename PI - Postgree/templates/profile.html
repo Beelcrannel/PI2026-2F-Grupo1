@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Perfil de {{ user.name }} - CONCOOP{% endblock %}
+{% block title %}Perfil de {{ user.name }} - AgroLink{% endblock %}
 
 {% block content %}
 <h1 class="page-title">Perfil de {{ user.name }}</h1>
@@ -12,8 +12,6 @@
     <p><strong>Tipo de conta:</strong>
         {% if user.role == 'produtor' %}
             Produtor
-        {% elif user.role == 'servidor' %}
-            Prestador de serviços
         {% elif user.role == 'veterinario' %}
             Veterinário
             {% if user.is_vet_verified %}
