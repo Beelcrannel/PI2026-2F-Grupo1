@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block title %}Ajuda Animal — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;">
+
+  <!-- Hero strip -->
+  <div class="hero" style="padding:2.5rem;margin-bottom:2.5rem;">
+    <div class="hero-inner">
+      <div class="hero-label">
+        🐄 Comunidade Rural
+      </div>
+      <h1>Ajuda com Animais</h1>
+      <p>Compartilhe problemas com seus animais e receba orientações de produtores experientes e veterinários da rede.</p>
+      <div class="hero-btns">
+        {% if g.user %}
+          <a href="{{ url_for('vets') }}" class="btn btn-gold">Consultar Veterinário</a>
+        {% else %}
+          <a href="{{ url_for('register') }}" class="btn btn-gold">Criar conta para participar</a>
+        {% endif %}
+        <a href="{{ url_for('vets') }}" class="btn btn-outline" style="border-color:rgba(255,255,255,.35);color:#fff;">Ver Veterinários</a>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:2rem;align-items:start;">
+
+    <!-- Feed de relatos -->
+    <div>
+      <div class="section-header" style="margin-bottom:1.25rem;">
+        <h2>Relatos Recentes</h2>
+        <div style="display:flex;gap:0.5rem;">
+          <span class="badge badge-green">● Aberto</span>
+          <span class="badge badge-gold">Em andamento</span>
+          <span class="badge badge-blue">Resolvido</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+
+        <!-- Relato 1 -->
+        <article class="card card-hover" style="padding:0;overflow:hidden;">
+          <div style="display:grid;grid-template-columns:220px 1fr;">
+            <div style="position:relative;overflow:hidden;">
+              <img
+                src="https://images.unsplash.com/photo-1603149883018-604b6284b12d?w=400&q=80"
+                alt="Vaca leiteira"
+                style="width:100%;height:100%;object-fit:cover;min-height:180px;">
+              <span class="badge badge-green" style="position:absolute;top:0.75rem;left:0.75rem;font-size:0.72rem;">● Aberto</span>
+            </div>
+            <div style="padding:1.5rem;display:flex;flex-direction:column;gap:0.6rem;">
+              <h3 class="card-title" style="font-size:1rem;">Vaca com Mastite — Preciso de Orientação</h3>
+              <p class="card-desc">Uma das minhas vacas leiteiras está com sinais de mastite. O leite está saindo com grumos e ela parece sentir dor ao ordenhar. Já isolei do rebanho. Alguém pode orientar?</p>
+              <div style="display:flex;flex-wrap:wrap;gap:0.5rem;font-size:0.78rem;color:var(--muted);">
+                <span>🐄 Vaca Leiteira</span>
+                <span>•</span>
+                <span>👤 João Silva</span>
+                <span>•</span>
+                <span>📍 Passos, MG</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.25rem;">
+                <div style="display:flex;gap:1rem;font-size:0.8rem;color:var(--muted);">
+                  <span>📅 10/02/2026</span>
+                  <span>💬 8 respostas</span>
+                </div>
+                <a href="{{ url_for('vets') }}" class="btn btn-primary btn-sm">Ver detalhes</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Relato 2 -->
+        <article class="card card-hover" style="padding:0;overflow:hidden;">
+          <div style="display:grid;grid-template-columns:220px 1fr;">
+            <div style="position:relative;overflow:hidden;">
+              <img
+                src="https://images.unsplash.com/photo-1658086130176-9e771ed4c9b1?w=400&q=80"
+                alt="Galinhas"
+                style="width:100%;height:100%;object-fit:cover;min-height:180px;">
+              <span class="badge badge-gold" style="position:absolute;top:0.75rem;left:0.75rem;font-size:0.72rem;">Em andamento</span>
+            </div>
+            <div style="padding:1.5rem;display:flex;flex-direction:column;gap:0.6rem;">
+              <h3 class="card-title" style="font-size:1rem;">Galinhas Pararam de Botar Ovos</h3>
+              <p class="card-desc">Minhas galinhas caipiras pararam de botar ovos há 3 dias. Elas parecem saudáveis e estão comendo normalmente. Mudei a ração recentemente — pode ser isso?</p>
+              <div style="display:flex;flex-wrap:wrap;gap:0.5rem;font-size:0.78rem;color:var(--muted);">
+                <span>🐔 Galinhas Poedeiras</span>
+                <span>•</span>
+                <span>👤 Maria Santos</span>
+                <span>•</span>
+                <span>📍 Atibaia, SP</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.25rem;">
+                <div style="display:flex;gap:1rem;font-size:0.8rem;color:var(--muted);">
+                  <span>📅 11/02/2026</span>
+                  <span>💬 5 respostas</span>
+                </div>
+                <a href="{{ url_for('vets') }}" class="btn btn-primary btn-sm">Ver detalhes</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Relato 3 -->
+        <article class="card card-hover" style="padding:0;overflow:hidden;">
+          <div style="display:grid;grid-template-columns:220px 1fr;">
+            <div style="position:relative;overflow:hidden;">
+              <img
+                src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=400&q=80"
+                alt="Bezerro"
+                style="width:100%;height:100%;object-fit:cover;min-height:180px;">
+              <span class="badge badge-blue" style="position:absolute;top:0.75rem;left:0.75rem;font-size:0.72rem;">✓ Resolvido</span>
+            </div>
+            <div style="padding:1.5rem;display:flex;flex-direction:column;gap:0.6rem;">
+              <h3 class="card-title" style="font-size:1rem;">Bezerro com Diarreia — Resolvido!</h3>
+              <p class="card-desc">Meu bezerro estava com diarreia severa. Com as orientações da comunidade, tratei com soro caseiro e probióticos. Ele já está se alimentando bem novamente!</p>
+              <div style="display:flex;flex-wrap:wrap;gap:0.5rem;font-size:0.78rem;color:var(--muted);">
+                <span>🐄 Bezerro</span>
+                <span>•</span>
+                <span>👤 Carlos Oliveira</span>
+                <span>•</span>
+                <span>📍 Poços de Caldas, MG</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.25rem;">
+                <div style="display:flex;gap:1rem;font-size:0.8rem;color:var(--muted);">
+                  <span>📅 08/02/2026</span>
+                  <span>💬 12 respostas</span>
+                </div>
+                <a href="{{ url_for('vets') }}" class="btn btn-outline btn-sm">Ver detalhes</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside style="position:sticky;top:80px;display:flex;flex-direction:column;gap:1rem;">
+
+      <!-- Ação rápida -->
+      <div class="card" style="text-align:center;padding:1.75rem 1.5rem;">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🩺</div>
+        <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Precisa de ajuda agora?</h3>
+        <p class="card-meta" style="margin-bottom:1.25rem;">Fale diretamente com um veterinário verificado da plataforma.</p>
+        <a href="{{ url_for('vets') }}" class="btn btn-primary btn-full">Consultar Veterinário</a>
+      </div>
+
+      <!-- Dicas rápidas -->
+      <div class="card" style="padding:1.5rem;">
+        <h4 style="font-size:0.9rem;margin-bottom:1rem;color:var(--soil);">💡 Dicas ao relatar</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--muted);">
+          <li>🐄 Informe a espécie e raça do animal</li>
+          <li>📍 Diga sua localização</li>
+          <li>📅 Há quantos dias o sintoma apareceu</li>
+          <li>🌡️ Se tem febre ou outros sintomas</li>
+          <li>💊 Medicamentos já usados</li>
+        </ul>
+      </div>
+
+      <!-- Tópicos populares -->
+      <div class="card" style="padding:1.5rem;">
+        <h4 style="font-size:0.9rem;margin-bottom:1rem;color:var(--soil);">🔥 Tópicos comuns</h4>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <span class="card-tag tag-green">Mastite</span>
+          <span class="card-tag tag-brown">Parasitas</span>
+          <span class="card-tag tag-gold">Nutrição</span>
+          <span class="card-tag tag-blue">Vacinação</span>
+          <span class="card-tag tag-green">Parto</span>
+          <span class="card-tag tag-brown">Diarreia</span>
+          <span class="card-tag tag-gold">Febre</span>
+          <span class="card-tag tag-blue">Reprodução</span>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+@media (max-width: 768px) {
+  .card [style*="grid-template-columns:220px"] {
+    grid-template-columns: 1fr !important;
+  }
+  .card [style*="grid-template-columns:220px"] > div:first-child {
+    min-height: 160px !important;
+  }
+}
+</style>
+{% endblock %}

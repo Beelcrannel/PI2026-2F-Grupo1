@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Meu Painel — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <h1>Meu Painel</h1>
+    <p>Gerencie seus produtos, mensagens e perfil.</p>
+  </div>
+
+  <div class="dash-grid">
+
+    <!-- LEFT: Perfil -->
+    <aside style="position:sticky;top:80px;">
+      <div class="card" style="text-align:center;padding:2rem 1.5rem;">
+        {% if g.user.profile_image %}
+          <img src="{{ url_for('static', filename=g.user.profile_image) }}" alt="{{ g.user.name }}"
+               class="avatar avatar-xl" style="margin:0 auto 1.25rem;">
+        {% else %}
+          <div class="avatar-placeholder avatar-xl" style="margin:0 auto 1.25rem;font-size:2rem;">
+            {{ g.user.name[0]|upper }}
+          </div>
+        {% endif %}
+
+        <h2 style="font-size:1.2rem;margin-bottom:0.25rem;">{{ g.user.name }}</h2>
+        <p class="card-meta" style="margin-bottom:1rem;">
+          {% if g.user.role == 'produtor' %}🌱 Produtor Rural
+          {% elif g.user.role == 'servidor' %}🔧 Prestador de Serviços
+          {% elif g.user.role == 'veterinario' %}🩺 Veterinário
+          {% else %}👤 Usuário{% endif %}
+          {% if g.user.city %}<br>📍 {{ g.user.city }}{% endif %}
+        </p>
+
+        {% if g.user.role == 'veterinario' %}
+          {% if g.user.is_vet_verified %}
+            <span class="badge badge-green" style="margin-bottom:1rem;">✓ Verificado</span>
+          {% else %}
+            <span class="badge badge-gold" style="margin-bottom:1rem;">Aguardando verificação</span>
+          {% endif %}
+        {% endif %}
+
+        <div style="display:flex;flex-direction:column;gap:0.6rem;">
+          <a href="{{ url_for('profile', user_id=g.user.id) }}" class="btn btn-outline btn-sm btn-full">Ver perfil público</a>
+          {% if g.user.role == 'produtor' %}
+            <a href="{{ url_for('new_product') }}" class="btn btn-primary btn-sm btn-full">+ Novo produto</a>
+          {% endif %}
+          <a href="{{ url_for('marketplace') }}" class="btn btn-ghost btn-sm btn-full">Explorar mercado</a>
+          <a href="{{ url_for('vets') }}"        class="btn btn-ghost btn-sm btn-full">Ver veterinários</a>
+        </div>
+      </div>
+
+      <div class="card mt-2" style="padding:1.25rem;">
+        <p style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:0.75rem;">Informações</p>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.875rem;">
+          <div><span style="color:var(--muted);">E-mail</span><br><strong>{{ g.user.email }}</strong></div>
+          {% if g.user.city %}
+          <div><span style="color:var(--muted);">Cidade</span><br><strong>{{ g.user.city }}</strong></div>
+          {% endif %}
+          {% if g.user.crmv %}
+          <div><span style="color:var(--muted);">CRMV</span><br><strong>{{ g.user.crmv }}</strong></div>
+          {% endif %}
+        </div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: conteúdo dinâmico -->
+    <div>
+
+      <!-- Produtos (só produtor) -->
+      {% if g.user.role == 'produtor' %}
+      <section class="section" style="margin-top:0;">
+        <div class="section-header">
+          <h2>Meus Produtos</h2>
+          <a href="{{ url_for('new_product') }}" class="btn btn-primary btn-sm">+ Novo produto</a>
+        </div>
+        <div class="card-grid">
+          {% for p in products %}
+            <article class="card card-hover">
+              {% if p.image_path %}
+                <img src="{{ url_for('static', filename=p.image_path) }}" alt="{{ p.title }}" class="card-image">
+              {% endif %}
+              <span class="card-tag tag-green">Produto</span>
+              <h3 class="card-title">{{ p.title }}</h3>
+              <p class="card-desc">{{ p.description|truncate(120) }}</p>
+              {% if p.price %}<p class="price">R$ {{ p.price }}</p>{% endif %}
+            </article>
+          {% else %}
+            <div class="empty">
+              <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8l-2 4h12l-2-4z"/></svg>
+              <p>Você ainda não cadastrou produtos.<br><a href="{{ url_for('new_product') }}" style="color:var(--field-dim);font-weight:600;">Criar o primeiro →</a></p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- Serviços (só servidor) -->
+      {% if g.user.role == 'servidor' %}
+      <section class="section" style="margin-top:0;">
+        <div class="section-header">
+          <h2>Meus Serviços</h2>
+        </div>
+        <div class="card-grid">
+          {% for s in services %}
+            <article class="card card-hover">
+              <span class="card-tag tag-brown">Serviço</span>
+              <h3 class="card-title">{{ s.title }}</h3>
+              <p class="card-desc">{{ s.description|truncate(120) }}</p>
+              {% if s.price %}<p class="price">R$ {{ s.price }}</p>{% endif %}
+            </article>
+          {% else %}
+            <div class="empty">
+              <p>Nenhum serviço cadastrado ainda.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- Mensagens recebidas -->
+      <section class="section">
+        <div class="section-header">
+          <h2>Mensagens Recebidas</h2>
+          {% if g.unread_count and g.unread_count > 0 %}
+            <span class="badge badge-notify">{{ g.unread_count }} novas</span>
+          {% endif %}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;">
+          {% for m in received_messages %}
+            <a href="{{ url_for('chat', user_id=m.sender_id) }}" style="display:block;">
+              <div class="msg-item">
+                <div class="avatar-placeholder avatar-md" style="font-size:0.85rem;flex-shrink:0;">
+                  {{ (m.sender_name or m.vet_name or m.producer_name or '?')[0]|upper }}
+                </div>
+                <div class="msg-item-body">
+                  <p class="msg-item-name">
+                    {% if g.user.role == 'produtor' %}{{ m.vet_name or m.sender_name }}
+                    {% elif g.user.role == 'veterinario' %}{{ m.producer_name or m.sender_name }}
+                    {% else %}{{ m.sender_name or '—' }}{% endif %}
+                  </p>
+                  <p class="msg-item-preview">{{ m.content }}</p>
+                </div>
+                <span class="msg-item-time">{{ m.created_at }}</span>
+              </div>
+            </a>
+          {% else %}
+            <div class="empty">
+              <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              <p>Nenhuma mensagem recebida ainda.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Mensagens enviadas -->
+      <section class="section">
+        <div class="section-header">
+          <h2>Mensagens Enviadas</h2>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.6rem;">
+          {% for m in sent_messages %}
+            <a href="{{ url_for('chat', user_id=m.receiver_id) }}" style="display:block;">
+              <div class="msg-item">
+                <div class="avatar-placeholder avatar-md" style="font-size:0.85rem;flex-shrink:0;">
+                  {{ (m.receiver_name or '?')[0]|upper }}
+                </div>
+                <div class="msg-item-body">
+                  <p class="msg-item-name">Para: {{ m.receiver_name or '—' }}</p>
+                  <p class="msg-item-preview">{{ m.content }}</p>
+                </div>
+                <span class="msg-item-time">{{ m.created_at }}</span>
+              </div>
+            </a>
+          {% else %}
+            <div class="empty">
+              <p>Você ainda não enviou mensagens.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+    </div><!-- /right -->
+  </div><!-- /dash-grid -->
+</div>
+{% endblock %}

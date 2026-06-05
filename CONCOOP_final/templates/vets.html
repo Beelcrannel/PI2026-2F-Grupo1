@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Veterinários — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;">
+
+  <div class="page-header">
+    <h1>Veterinários</h1>
+    <p>Profissionais verificados disponíveis para atendimento e consultoria.</p>
+  </div>
+
+  <div class="card-grid">
+    {% for v in vets %}
+      <div class="vet-card">
+        <div class="vet-card-header">
+          <div class="avatar-placeholder avatar-lg" style="flex-shrink:0;font-size:1.3rem;">
+            {{ v.name[0]|upper }}
+          </div>
+          <div>
+            <h3>{{ v.name }}</h3>
+            <p>{% if v.city %}📍 {{ v.city }}{% else %}Veterinário{% endif %}</p>
+          </div>
+          {% if v.is_vet_verified %}
+            <span class="badge badge-green" style="margin-left:auto;flex-shrink:0;">✓</span>
+          {% endif %}
+        </div>
+        <div class="vet-card-body">
+          <p class="card-desc" style="margin-bottom:1rem;">
+            {{ v.bio or "Profissional disponível para atendimentos e consultorias rurais." }}
+          </p>
+          {% if v.crmv %}
+            <p class="card-meta" style="margin-bottom:1rem;">CRMV: {{ v.crmv }}</p>
+          {% endif %}
+          <a href="{{ url_for('message_vet', vet_id=v.id) }}" class="btn btn-primary btn-sm btn-full">Entrar em contato</a>
+        </div>
+      </div>
+    {% else %}
+      <div class="empty" style="grid-column:1/-1;padding:5rem 2rem;">
+        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+        <p>Nenhum veterinário cadastrado ainda.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Painel Admin — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;">
+
+  <div class="page-header">
+    <h1>Painel Administrativo</h1>
+    <p>Visão geral do sistema e ferramentas de gestão.</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="admin-stats">
+    <div class="admin-stat">
+      <div class="admin-stat-icon green">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>
+      </div>
+      <div>
+        <div class="admin-stat-num">{{ users|length }}</div>
+        <div class="admin-stat-lbl">Usuários</div>
+      </div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-icon gold">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8l-2 4h12l-2-4z"/></svg>
+      </div>
+      <div>
+        <div class="admin-stat-num">{{ products|length }}</div>
+        <div class="admin-stat-lbl">Produtos</div>
+      </div>
+    </div>
+    <div class="admin-stat">
+      <div class="admin-stat-icon brown">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div>
+        <div class="admin-stat-num">{{ messages|length }}</div>
+        <div class="admin-stat-lbl">Mensagens</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROADCAST -->
+  <section class="section">
+    <div class="section-header"><h2>Mensagem em Massa</h2></div>
+    <div class="card" style="max-width:600px;">
+      <form method="post" action="{{ url_for('admin_broadcast') }}" class="form-grid">
+        <div class="form-field">
+          <label for="target">Destinatários</label>
+          <select id="target" name="target" required>
+            <option value="all">Todos os usuários</option>
+            <option value="produtores">Somente produtores</option>
+            <option value="Servidores">Somente prestadores de serviços</option>
+            <option value="veterinarios">Somente veterinários</option>
+            <option value="usuarios">Somente usuários comuns</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="content">Mensagem</label>
+          <textarea id="content" name="content" rows="4" required
+            placeholder="Escreva a mensagem que será enviada ao grupo selecionado..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar mensagem em massa</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- USUÁRIOS -->
+  <section class="section">
+    <div class="section-header"><h2>Usuários Cadastrados</h2></div>
+    <div class="card" style="padding:0;">
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Nome</th><th>E-mail</th><th>Tipo</th>
+              <th>Cidade</th><th>CRMV</th><th>Verificado</th><th>Admin</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td style="color:var(--muted);font-size:0.78rem;">{{ u.id }}</td>
+              <td><strong>{{ u.name }}</strong></td>
+              <td style="color:var(--muted);">{{ u.email }}</td>
+              <td>
+                <span class="badge
+                  {% if u.role == 'produtor' %}badge-green
+                  {% elif u.role == 'veterinario' %}badge-blue
+                  {% elif u.role == 'servidor' %}badge-gold
+                  {% else %}badge-notify{% endif %}">
+                  {{ u.role }}
+                </span>
+              </td>
+              <td>{{ u.city or "—" }}</td>
+              <td>{{ u.crmv or "—" }}</td>
+              <td>
+                {% if u.role == 'veterinario' %}
+                  {% if u.is_vet_verified %}
+                    <span class="badge badge-green">Sim</span>
+                  {% else %}
+                    <span style="color:var(--muted);font-size:0.82rem;">Não</span>
+                  {% endif %}
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                {% if u.is_admin %}<span class="badge badge-gold">Admin</span>
+                {% else %}<span style="color:var(--muted);font-size:0.82rem;">Não</span>{% endif %}
+              </td>
+              <td>
+                {% if u.role == 'veterinario' %}
+                  <form method="post" action="{{ url_for('toggle_vet_verification', user_id=u.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm {% if u.is_vet_verified %}btn-danger{% else %}btn-primary{% endif %}">
+                      {% if u.is_vet_verified %}Remover{% else %}Verificar{% endif %}
+                    </button>
+                  </form>
+                {% else %}—{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUTOS -->
+  <section class="section">
+    <div class="section-header"><h2>Produtos</h2></div>
+    <div class="card" style="padding:0;">
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>ID</th><th>Título</th><th>Produtor</th><th>Cidade</th><th>Preço</th></tr>
+          </thead>
+          <tbody>
+            {% for p in products %}
+            <tr>
+              <td style="color:var(--muted);font-size:0.78rem;">{{ p.id }}</td>
+              <td><strong>{{ p.title }}</strong></td>
+              <td>{{ p.producer_name }}</td>
+              <td>{{ p.city or "—" }}</td>
+              <td>{% if p.price %}<span style="color:var(--field-dim);font-weight:600;">R$ {{ p.price }}</span>{% else %}—{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENSAGENS -->
+  <section class="section">
+    <div class="section-header"><h2>Mensagens</h2></div>
+    <div class="card" style="padding:0;">
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>ID</th><th>De</th><th>Para</th><th>Conteúdo</th><th>Data</th><th>Lida</th></tr>
+          </thead>
+          <tbody>
+            {% for m in messages %}
+            <tr>
+              <td style="color:var(--muted);font-size:0.78rem;">{{ m.id }}</td>
+              <td><strong>{{ m.sender_name }}</strong></td>
+              <td>{{ m.receiver_name }}</td>
+              <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.content }}</td>
+              <td style="color:var(--muted);font-size:0.82rem;">{{ m.created_at }}</td>
+              <td>
+                {% if m.is_read %}
+                  <span class="badge badge-green">Sim</span>
+                {% else %}
+                  <span class="badge badge-red">Não</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

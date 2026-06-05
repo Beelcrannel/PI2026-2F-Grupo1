@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+{% block title %}Chat com {{ other.name }} — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:1.5rem;padding-bottom:2rem;">
+<div class="chat-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="chat-sidebar">
+    <!-- Contato -->
+    <div class="card" style="padding:1.5rem;">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
+        <div style="position:relative;flex-shrink:0;">
+          {% if other.profile_image %}
+            <img src="{{ url_for('static', filename=other.profile_image) }}" alt="{{ other.name }}"
+                 class="avatar avatar-lg">
+          {% else %}
+            <div class="avatar-placeholder avatar-lg" style="font-size:1.3rem;">{{ other.name[0]|upper }}</div>
+          {% endif %}
+          <span style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;background:#22c55e;border-radius:50%;border:2px solid #fff;"></span>
+        </div>
+        <div style="min-width:0;">
+          <p style="font-weight:700;font-size:0.95rem;color:var(--soil);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ other.name }}</p>
+          <p style="font-size:0.78rem;color:var(--muted);margin-top:0.1rem;">
+            {% if other.role == 'produtor' %}🌱 Produtor Rural
+            {% elif other.role == 'servidor' %}🔧 Prestador de Serviços
+            {% elif other.role == 'veterinario' %}🩺 Veterinário
+            {% else %}👤 Usuário{% endif %}
+            {% if other.city %}<br>📍 {{ other.city }}{% endif %}
+          </p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;">
+        <a href="{{ url_for('profile', user_id=other.id) }}" class="btn btn-outline btn-sm btn-full">Ver perfil</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-ghost btn-sm btn-full">Meu painel</a>
+      </div>
+    </div>
+
+    <!-- Produto em pauta -->
+    {% if product %}
+    <div class="card mt-2" style="padding:1.1rem;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#bbf7d0;">
+      <p style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--field-dim);margin-bottom:0.6rem;">Anúncio em pauta</p>
+      <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+        {% if product.image_path %}
+          <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.title }}"
+               style="width:50px;height:50px;object-fit:cover;border-radius:var(--r-sm);flex-shrink:0;">
+        {% endif %}
+        <div style="min-width:0;">
+          <p style="font-weight:600;font-size:0.86rem;color:var(--soil);margin-bottom:0.2rem;">{{ product.title }}</p>
+          {% if product.price %}
+            <p style="font-weight:700;color:var(--field-dim);font-size:0.88rem;">R$ {{ product.price }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </aside>
+
+  <!-- CHAT MAIN -->
+  <div class="chat-main">
+
+    <!-- Top bar -->
+    <div class="chat-topbar">
+      <div style="display:flex;align-items:center;gap:0.85rem;">
+        {% if other.profile_image %}
+          <img src="{{ url_for('static', filename=other.profile_image) }}" alt="{{ other.name }}"
+               class="avatar" style="width:36px;height:36px;">
+        {% else %}
+          <div class="avatar-placeholder" style="width:36px;height:36px;font-size:0.85rem;">{{ other.name[0]|upper }}</div>
+        {% endif %}
+        <div>
+          <p style="font-weight:700;font-size:0.92rem;color:var(--soil);line-height:1.2;">{{ other.name }}</p>
+          <p style="font-size:0.75rem;color:#22c55e;font-weight:500;">● Online agora</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensagens -->
+    <div class="chat-messages" id="chat-messages">
+      {% for m in messages %}
+        <div class="cmsg {% if m.sender_id == g.user.id %}cmsg-mine{% else %}cmsg-theirs{% endif %}" data-id="{{ m.id }}">
+          {% if m.sender_id != g.user.id %}
+            <div class="cmsg-av">{{ m.sender_name[0]|upper }}</div>
+          {% endif %}
+          <div class="cmsg-body">
+            <div class="cmsg-bubble">{{ m.content }}</div>
+            <span class="cmsg-time">
+              {% if m.sender_id == g.user.id %}Você{% else %}{{ m.sender_name }}{% endif %}
+              &bull; {{ m.created_at }}
+            </span>
+          </div>
+        </div>
+      {% else %}
+        <div id="chat-empty" style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;margin:auto;color:var(--muted);text-align:center;padding:3rem 1.5rem;">
+          <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <p style="font-size:0.9rem;">Nenhuma mensagem ainda.<br>Diga olá para <strong>{{ other.name }}</strong>!</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Input -->
+    <div class="chat-inputbar">
+      <div class="chat-input-wrap">
+        <textarea id="chat-input" class="chat-textarea" rows="1"
+          placeholder="Escreva uma mensagem..." maxlength="2000" autofocus></textarea>
+        <button class="chat-send" id="chat-send-btn" title="Enviar (Enter)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+      <p style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:0.4rem;">Enter para enviar &bull; Shift+Enter para nova linha</p>
+    </div>
+
+  </div><!-- /chat-main -->
+</div><!-- /chat-layout -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.chat-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1.25rem;
+  height: calc(100vh - 140px);
+  min-height: 480px;
+}
+
+.chat-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+}
+
+.chat-main {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.chat-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+  flex-shrink: 0;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  scroll-behavior: smooth;
+  background: var(--cream);
+}
+
+.chat-messages::-webkit-scrollbar { width: 5px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* message bubbles */
+.cmsg {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+  max-width: 72%;
+  animation: msg-pop .2s ease;
+}
+@keyframes msg-pop {
+  from { opacity:0; transform:translateY(7px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.cmsg-mine   { align-self: flex-end; flex-direction: row-reverse; }
+.cmsg-theirs { align-self: flex-start; }
+
+.cmsg-av {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--field), var(--hay));
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.cmsg-body { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+
+.cmsg-bubble {
+  padding: 0.65rem 1rem;
+  border-radius: 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.cmsg-theirs .cmsg-bubble {
+  background: var(--white);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cmsg-mine .cmsg-bubble {
+  background: linear-gradient(135deg, var(--field) 0%, var(--field-dim) 100%);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 12px rgba(58,125,68,.3);
+}
+
+.cmsg-time {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.cmsg-mine .cmsg-time { text-align: right; }
+
+/* input */
+.chat-inputbar {
+  padding: 1rem 1.25rem 0.85rem;
+  border-top: 1px solid var(--border);
+  background: var(--white);
+  flex-shrink: 0;
+}
+
+.chat-input-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  background: var(--cream);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  transition: border-color .15s, box-shadow .15s;
+}
+.chat-input-wrap:focus-within {
+  border-color: var(--field);
+  box-shadow: 0 0 0 3px rgba(58,125,68,.1);
+}
+
+.chat-textarea {
+  flex: 1;
+  border: none;
+  background: transparent;
+  resize: none;
+  font-size: 0.9rem;
+  color: var(--ink);
+  max-height: 120px;
+  min-height: 1.5rem;
+  overflow-y: auto;
+  padding: 0.2rem 0;
+}
+.chat-textarea:focus { outline: none; }
+.chat-textarea::placeholder { color: var(--muted); }
+
+.chat-send {
+  width: 2.5rem; height: 2.5rem;
+  border-radius: 50%;
+  background: var(--field);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: background .15s, transform .15s, box-shadow .15s;
+  box-shadow: 0 4px 10px rgba(58,125,68,.3);
+  cursor: pointer;
+}
+.chat-send:hover { background: var(--field-dim); transform: scale(1.07); }
+.chat-send:active { transform: scale(.96); }
+.chat-send:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+@media (max-width: 768px) {
+  .chat-layout { grid-template-columns: 1fr; height: auto; }
+  .chat-sidebar { display: none; }
+  .chat-main { height: calc(100vh - 140px); min-height: 400px; }
+  .cmsg { max-width: 88%; }
+}
+</style>
+
+<script>
+(function () {
+  const SEND_URL   = "{{ url_for('api_send',    user_id=other.id) }}";
+  const POLL_URL   = "{{ url_for('api_messages', user_id=other.id) }}";
+  const CURRENT_ID = {{ g.user.id }};
+
+  const msgsEl  = document.getElementById('chat-messages');
+  const inputEl = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send-btn');
+  const emptyEl = document.getElementById('chat-empty');
+
+  let lastId = 0;
+  document.querySelectorAll('.cmsg[data-id]').forEach(el => {
+    const id = parseInt(el.dataset.id, 10);
+    if (id > lastId) lastId = id;
+  });
+
+  function scrollDown(smooth = true) {
+    msgsEl.scrollTo({ top: msgsEl.scrollHeight, behavior: smooth ? 'smooth' : 'instant' });
+  }
+  scrollDown(false);
+
+  inputEl.addEventListener('input', () => {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+  });
+
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  async function sendMessage() {
+    const content = inputEl.value.trim();
+    if (!content) return;
+    sendBtn.disabled = true;
+    inputEl.disabled = true;
+    try {
+      const res = await fetch(SEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      });
+      if (!res.ok) throw new Error();
+      const msg = await res.json();
+      appendMessage(msg);
+      if (msg.id > lastId) lastId = msg.id;
+      inputEl.value = '';
+      inputEl.style.height = 'auto';
+    } catch {
+      alert('Erro ao enviar. Tente novamente.');
+    } finally {
+      sendBtn.disabled = false;
+      inputEl.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  function appendMessage(m) {
+    if (emptyEl) emptyEl.remove();
+    const div = document.createElement('div');
+    div.className = 'cmsg ' + (m.is_mine ? 'cmsg-mine' : 'cmsg-theirs');
+    div.dataset.id = m.id;
+    const ts = fmt(m.created_at);
+    if (m.is_mine) {
+      div.innerHTML = `<div class="cmsg-body"><div class="cmsg-bubble">${esc(m.content)}</div><span class="cmsg-time">Você &bull; ${ts}</span></div>`;
+    } else {
+      div.innerHTML = `<div class="cmsg-av">${esc(m.sender_name[0].toUpperCase())}</div><div class="cmsg-body"><div class="cmsg-bubble">${esc(m.content)}</div><span class="cmsg-time">${esc(m.sender_name)} &bull; ${ts}</span></div>`;
+    }
+    msgsEl.appendChild(div);
+    scrollDown();
+  }
+
+  async function poll() {
+    try {
+      const res = await fetch(`${POLL_URL}?since=${lastId}`);
+      if (!res.ok) return;
+      const msgs = await res.json();
+      msgs.forEach(m => { if (m.id > lastId) { appendMessage(m); lastId = m.id; } });
+    } catch (_) {}
+  }
+  setInterval(poll, 3000);
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmt(raw) {
+    try {
+      return new Date(raw.replace(' ','T') + (raw.includes('T') ? '' : 'Z'))
+        .toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+    } catch { return raw; }
+  }
+})();
+</script>
+{% endblock %}

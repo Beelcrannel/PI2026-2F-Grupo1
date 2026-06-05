@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Mensagem para {{ vet.name }} — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;">
+
+  <div style="display:grid;grid-template-columns:340px 1fr;gap:2rem;align-items:start;max-width:860px;">
+
+    <!-- Vet card -->
+    <div>
+      <div class="vet-card">
+        <div class="vet-card-header">
+          <div class="avatar-placeholder avatar-lg" style="flex-shrink:0;font-size:1.3rem;">
+            {{ vet.name[0]|upper }}
+          </div>
+          <div>
+            <h3>{{ vet.name }}</h3>
+            <p>{% if vet.city %}📍 {{ vet.city }}{% else %}Veterinário{% endif %}</p>
+          </div>
+          {% if vet.is_vet_verified %}
+            <span class="badge badge-green" style="margin-left:auto;flex-shrink:0;">✓</span>
+          {% endif %}
+        </div>
+        <div class="vet-card-body">
+          {% if vet.bio %}
+            <p class="card-desc" style="margin-bottom:0.75rem;">{{ vet.bio }}</p>
+          {% endif %}
+          {% if vet.crmv %}
+            <p class="card-meta">CRMV: {{ vet.crmv }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mt-2" style="padding:1.25rem;">
+        <p style="font-size:0.8rem;color:var(--muted);line-height:1.6;">
+          💡 <strong>Dica:</strong> Descreva os sintomas do animal, espécie, raça, idade estimada e localização. Quanto mais detalhes, melhor o atendimento.
+        </p>
+      </div>
+    </div>
+
+    <!-- Formulário -->
+    <div class="card">
+      <h2 style="margin-bottom:0.4rem;">Enviar mensagem</h2>
+      <p class="card-meta" style="margin-bottom:1.5rem;">Para: <strong>{{ vet.name }}</strong></p>
+      <form method="post" class="form-grid">
+        <div class="form-field">
+          <label for="content">Sua mensagem</label>
+          <textarea id="content" name="content" rows="7" required
+            placeholder="Ex: Tenho uma vaca leiteira de 4 anos apresentando febre há 2 dias e perda de apetite..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-full">Enviar mensagem</button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

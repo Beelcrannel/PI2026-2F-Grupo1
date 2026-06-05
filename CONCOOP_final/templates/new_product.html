@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Novo Produto — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;">
+
+  <div style="max-width:640px;">
+    <div class="page-header">
+      <h1>Cadastrar Produto</h1>
+      <p>Preencha as informações do seu produto para anunciá-lo no mercado.</p>
+    </div>
+
+    <div class="card">
+      <form method="post" class="form-grid" enctype="multipart/form-data">
+
+        <div class="form-field">
+          <label for="title">Título do produto</label>
+          <input type="text" id="title" name="title" required placeholder="Ex: Mel Silvestre Artesanal 500g">
+        </div>
+
+        <div class="form-field">
+          <label for="description">Descrição</label>
+          <textarea id="description" name="description" rows="5" required
+            placeholder="Descreva o produto: origem, características, como foi produzido, diferenciais..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="price">Preço (R$) <span style="font-weight:400;text-transform:none;color:var(--muted);">opcional</span></label>
+            <input type="text" id="price" name="price" placeholder="Ex: 35,00">
+          </div>
+          <div class="form-field">
+            <label for="product_image">Foto do produto <span style="font-weight:400;text-transform:none;color:var(--muted);">opcional</span></label>
+            <input type="file" id="product_image" name="product_image" accept="image/*">
+          </div>
+        </div>
+
+        <!-- Preview da imagem -->
+        <div id="img-preview-wrap" style="display:none;">
+          <img id="img-preview" src="" alt="Preview" style="max-height:200px;border-radius:var(--r-md);object-fit:cover;">
+        </div>
+
+        <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+          <button type="submit" class="btn btn-primary btn-lg" style="flex:1;">Publicar produto</button>
+          <a href="{{ url_for('dashboard') }}" class="btn btn-outline btn-lg">Cancelar</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="card mt-2" style="padding:1.25rem;">
+      <p style="font-size:0.82rem;color:var(--muted);line-height:1.7;">
+        📋 <strong>Dicas para um bom anúncio:</strong> Adicione uma foto de boa qualidade, descreva a procedência do produto e inclua o preço para facilitar o contato de compradores.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const input   = document.getElementById('product_image');
+  const preview = document.getElementById('img-preview');
+  const wrap    = document.getElementById('img-preview-wrap');
+
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file) { wrap.style.display = 'none'; return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      preview.src = e.target.result;
+      wrap.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Perfil de {{ user.name }} — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-bottom:4rem;">
+
+  <!-- PROFILE HERO -->
+  <div class="profile-hero">
+    <div class="profile-hero-inner">
+      {% if user.profile_image %}
+        <img src="{{ url_for('static', filename=user.profile_image) }}"
+             alt="{{ user.name }}" class="avatar avatar-xl">
+      {% else %}
+        <div class="avatar-placeholder avatar-xl" style="font-size:2.2rem;flex-shrink:0;">
+          {{ user.name[0]|upper }}
+        </div>
+      {% endif %}
+
+      <div class="profile-hero-info">
+        <h1>{{ user.name }}</h1>
+        <p>
+          {% if user.role == 'produtor' %}🌱 Produtor Rural
+          {% elif user.role == 'servidor' %}🔧 Prestador de Serviços
+          {% elif user.role == 'veterinario' %}🩺 Veterinário
+          {% else %}👤 Usuário{% endif %}
+          {% if user.city %} &nbsp;•&nbsp; 📍 {{ user.city }}{% endif %}
+        </p>
+
+        {% if user.role == 'veterinario' %}
+          <div style="margin-top:0.75rem;">
+            {% if user.is_vet_verified %}
+              <span class="badge badge-green">✓ Veterinário verificado</span>
+            {% else %}
+              <span class="badge badge-gold">Aguardando verificação</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if g.user and g.user.id != user.id %}
+          <div style="margin-top:1.25rem;">
+            <a href="{{ url_for('chat', user_id=user.id) }}" class="btn btn-gold">
+              💬 Enviar mensagem
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO CARDS -->
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:1.75rem;align-items:start;">
+
+    <!-- Sidebar info -->
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="card">
+        <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:0.85rem;">Informações</p>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;font-size:0.875rem;">
+          <div>
+            <p style="color:var(--muted);font-size:0.78rem;">E-mail</p>
+            <p style="font-weight:600;">{{ user.email }}</p>
+          </div>
+          {% if user.city %}
+          <div>
+            <p style="color:var(--muted);font-size:0.78rem;">Cidade</p>
+            <p style="font-weight:600;">{{ user.city }}</p>
+          </div>
+          {% endif %}
+          {% if user.crmv %}
+          <div>
+            <p style="color:var(--muted);font-size:0.78rem;">CRMV</p>
+            <p style="font-weight:600;">{{ user.crmv }}</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if user.bio %}
+      <div class="card">
+        <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:0.6rem;">Sobre</p>
+        <p style="font-size:0.88rem;color:var(--ink);line-height:1.65;">{{ user.bio }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Produtos (se for produtor) -->
+    <div>
+      {% if user.role == 'produtor' %}
+        <div class="section-header" style="margin-bottom:1.25rem;">
+          <h2>Produtos de {{ user.name }}</h2>
+        </div>
+        <div class="card-grid">
+          {% for p in products %}
+            <article class="card card-hover">
+              {% if p.image_path %}
+                <img src="{{ url_for('static', filename=p.image_path) }}" alt="{{ p.title }}" class="card-image">
+              {% endif %}
+              <span class="card-tag tag-green">Produto</span>
+              <h3 class="card-title">{{ p.title }}</h3>
+              <p class="card-desc">{{ p.description|truncate(140) }}</p>
+              {% if p.price %}<p class="price">R$ {{ p.price }}</p>{% endif %}
+              {% if g.user and g.user.id != user.id %}
+                <div class="card-actions">
+                  <a href="{{ url_for('chat', user_id=user.id, product_id=p.id) }}" class="btn btn-primary btn-sm">Negociar</a>
+                </div>
+              {% endif %}
+            </article>
+          {% else %}
+            <div class="empty">
+              <p>Este produtor ainda não cadastrou produtos.</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card" style="padding:2.5rem;text-align:center;">
+          <p class="text-muted">Nenhum conteúdo adicional para exibir.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
