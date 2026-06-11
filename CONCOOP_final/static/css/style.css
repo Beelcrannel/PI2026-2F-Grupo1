@@ -5,8 +5,8 @@
 ═══════════════════════════════════════════ */
 :root {
   /* Paleta: terra, verde campo, creme */
-  --soil:       #0c4003;   /* quase preto */
-  --bark:       #0c5d06;   /* marrom médio */
+  --soil:       #003701;   /* quase preto */
+  --bark:       #309129;   /* marrom médio */
   --hay:        #003701;   /* dourado palha */
   --hay-light:  #ffffff;   /* creme amarelado */
   --field:      #034c00;   /* verde campo */
@@ -357,8 +357,8 @@ h1, h2, h3, h4 {
 .hero {
   position: relative;
   overflow: hidden;
-  padding: 4rem 0 3.5rem;
-  background: linear-gradient(135deg, var(--soil) 0%, var(--bark) 60%, #3bbe37 100%);
+  padding: clamp(2.25rem, 4vw, 4rem) clamp(1.1rem, 3vw, 2rem) clamp(2.5rem, 4vw, 3.5rem);
+  background: linear-gradient(135deg, #0b3a04 0%, #1f6b1a 55%, #4fa54a 100%);
   border-radius: var(--r-xl);
   margin: 1.5rem 0 2.5rem;
   color: #fff;
@@ -377,6 +377,8 @@ h1, h2, h3, h4 {
   position: relative;
   z-index: 1;
   max-width: 620px;
+  width: 100%;
+  padding: clamp(0.2rem, 1vw, 0.5rem) 0;
 }
 
 .hero-label {
@@ -396,18 +398,36 @@ h1, h2, h3, h4 {
 }
 
 .hero h1 {
-
   font-size: clamp(2.2rem, 5vw, 3.5rem);
   color: #fff;
-  margin-bottom: 10px;
+  margin-bottom: 0.9rem;
   text-shadow: 0 2px 12px rgba(43, 38, 11, 0.2);
+  max-width: 100%;
 }
 
 .hero p {
   font-size: 1.05rem;
   color: rgba(255, 255, 255, 0.8);
-  max-width: 480px;
-  margin-bottom: 10px;
+  max-width: min(480px, 100%);
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 2rem 1rem 2.25rem;
+  }
+
+  .hero-inner {
+    max-width: 100%;
+  }
+
+  .hero h1 {
+    margin-bottom: 0.8rem;
+  }
+
+  .hero p {
+    margin-bottom: 0.9rem;
+  }
 }
 
 .hero-btns {

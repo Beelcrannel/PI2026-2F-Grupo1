@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from datetime import datetime
 import re
 from pathlib import Path
@@ -68,12 +69,33 @@ class PostgresCompatConnection:
 
     def __init__(self, conn):
         self._conn = conn
+        self.db_type = "postgres"
 
     def execute(self, query, params=None):
         pg_query = query.replace("?", "%s")
         cur = self._conn.cursor(cursor_factory=DictCursor)
         cur.execute(pg_query, params or ())
         return cur
+
+    def commit(self):
+        self._conn.commit()
+
+    def close(self):
+        self._conn.close()
+
+
+class SqliteCompatConnection:
+    """Conexão SQLite com API simples para execute/commit/close."""
+
+    def __init__(self, conn):
+        self._conn = conn
+        self._conn.row_factory = sqlite3.Row
+        self._conn.execute("PRAGMA foreign_keys = ON")
+        self.db_type = "sqlite"
+
+    def execute(self, query, params=None):
+        sqlite_query = query.replace("%s", "?")
+        return self._conn.execute(sqlite_query, params or ())
 
     def commit(self):
         self._conn.commit()
@@ -89,7 +111,15 @@ def connect_db():
         # Solucao: parsear a URL manualmente e conectar por parametros nomeados,
         # sem passar a DSN string (assim o psycopg2 nao toca no ambiente).
         from urllib.parse import urlparse, unquote
+
         parsed = urlparse(DEFAULT_DATABASE_URL)
+        if parsed.scheme.startswith("sqlite"):
+            sqlite_path = parsed.path
+            if sqlite_path.startswith("/"):
+                sqlite_path = sqlite_path[1:]
+            sqlite_conn = sqlite3.connect(sqlite_path or (Path(BASE_DIR) / "agrolink.sqlite3"))
+            return SqliteCompatConnection(sqlite_conn)
+
         raw_conn = psycopg2.connect(
             host=parsed.hostname or "127.0.0.1",
             port=parsed.port or 5432,
@@ -100,12 +130,8 @@ def connect_db():
         )
         return PostgresCompatConnection(raw_conn)
     except OperationalError as exc:
-        raise RuntimeError(
-            "Nao foi possivel conectar ao PostgreSQL. "
-            "Configure a variavel DATABASE_URL com usuario/senha corretos e confirme "
-            "que o banco existe. Exemplo: "
-            "postgresql://SEU_USUARIO:SUA_SENHA@127.0.0.1:5432/agrolink"
-        ) from exc
+        sqlite_conn = sqlite3.connect(Path(BASE_DIR) / "agrolink.sqlite3")
+        return SqliteCompatConnection(sqlite_conn)
 
 VALID_UFS = {
     "AC",
@@ -1000,10 +1026,12 @@ def get_db():
 
 def init_db():
     db = connect_db()
+    primary_key_sql = "INTEGER PRIMARY KEY AUTOINCREMENT" if db.db_type == "sqlite" else "SERIAL PRIMARY KEY"
+
     db.execute(
-        """
+        f"""
         CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
+            id {primary_key_sql},
             name TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
@@ -1018,9 +1046,9 @@ def init_db():
         """
     )
     db.execute(
-        """
+        f"""
         CREATE TABLE IF NOT EXISTS products (
-            id SERIAL PRIMARY KEY,
+            id {primary_key_sql},
             producer_id INTEGER NOT NULL REFERENCES users (id),
             title TEXT NOT NULL,
             description TEXT NOT NULL,
@@ -1031,9 +1059,9 @@ def init_db():
         """
     )
     db.execute(
-        """
+        f"""
         CREATE TABLE IF NOT EXISTS messages (
-            id SERIAL PRIMARY KEY,
+            id {primary_key_sql},
             sender_id INTEGER NOT NULL REFERENCES users (id),
             receiver_id INTEGER NOT NULL REFERENCES users (id),
             content TEXT NOT NULL,
