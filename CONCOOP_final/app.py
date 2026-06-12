@@ -59,7 +59,7 @@ if not os.getenv("DATABASE_URL"):
 
 DEFAULT_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:postgres@127.0.0.1:5432/agrolink",
+    "postgresql://agrolink:Morango@127.0.0.1:5432/agrolink",
 )
 
 
@@ -90,21 +90,42 @@ def connect_db():
         # sem passar a DSN string (assim o psycopg2 nao toca no ambiente).
         from urllib.parse import urlparse, unquote
         parsed = urlparse(DEFAULT_DATABASE_URL)
-        raw_conn = psycopg2.connect(
-            host=parsed.hostname or "127.0.0.1",
-            port=parsed.port or 5432,
-            dbname=(parsed.path or "/agrolink").lstrip("/"),
-            user=unquote(parsed.username or "postgres"),
-            password=unquote(parsed.password or "postgres"),
-            options="-c client_encoding=UTF8",
-        )
+
+        def _do_connect():
+            env_backup = dict(os.environ)
+            try:
+                os.environ.clear()
+                if env_backup.get("PATH") is not None:
+                    os.environ["PATH"] = env_backup["PATH"]
+                if env_backup.get("SystemRoot") is not None:
+                    os.environ["SystemRoot"] = env_backup["SystemRoot"]
+                if env_backup.get("TEMP") is not None:
+                    os.environ["TEMP"] = env_backup["TEMP"]
+                if env_backup.get("TMP") is not None:
+                    os.environ["TMP"] = env_backup["TMP"]
+                return psycopg2.connect(
+                    host=parsed.hostname or "127.0.0.1",
+                    port=parsed.port or 5432,
+                    dbname=(parsed.path or "/agrolink").lstrip("/"),
+                    user=unquote(parsed.username or "postgres"),
+                    password=unquote(parsed.password or "postgres"),
+                    options="-c client_encoding=UTF8",
+                )
+            finally:
+                os.environ.clear()
+                os.environ.update(env_backup)
+
+        raw_conn = _do_connect()
         return PostgresCompatConnection(raw_conn)
     except OperationalError as exc:
+        error_details = repr(exc)
+        if exc.args:
+            error_details += " | args=" + repr(exc.args)
         raise RuntimeError(
             "Nao foi possivel conectar ao PostgreSQL. "
-            "Configure a variavel DATABASE_URL com usuario/senha corretos e confirme "
-            "que o banco existe. Exemplo: "
-            "postgresql://SEU_USUARIO:SUA_SENHA@127.0.0.1:5432/agrolink"
+            "Verifique se o servidor está rodando, se o DB existe e se a URL está correta. "
+            "Exemplo: postgresql://agrolink:Morango@127.0.0.1:5432/agrolink\n"
+            f"Detalhes do erro: {error_details}"
         ) from exc
 
 VALID_UFS = {
