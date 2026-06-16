@@ -59,7 +59,7 @@ if not os.getenv("DATABASE_URL"):
 
 DEFAULT_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://agrolink:Morango@127.0.0.1:5432/agrolink",
+    "postgresql://postgres:Morango@127.0.0.1:5432/agrolink",
 )
 
 
@@ -92,28 +92,13 @@ def connect_db():
         parsed = urlparse(DEFAULT_DATABASE_URL)
 
         def _do_connect():
-            env_backup = dict(os.environ)
-            try:
-                os.environ.clear()
-                if env_backup.get("PATH") is not None:
-                    os.environ["PATH"] = env_backup["PATH"]
-                if env_backup.get("SystemRoot") is not None:
-                    os.environ["SystemRoot"] = env_backup["SystemRoot"]
-                if env_backup.get("TEMP") is not None:
-                    os.environ["TEMP"] = env_backup["TEMP"]
-                if env_backup.get("TMP") is not None:
-                    os.environ["TMP"] = env_backup["TMP"]
-                return psycopg2.connect(
-                    host=parsed.hostname or "127.0.0.1",
-                    port=parsed.port or 5432,
-                    dbname=(parsed.path or "/agrolink").lstrip("/"),
-                    user=unquote(parsed.username or "postgres"),
-                    password=unquote(parsed.password or "postgres"),
-                    options="-c client_encoding=UTF8",
-                )
-            finally:
-                os.environ.clear()
-                os.environ.update(env_backup)
+            return psycopg2.connect(
+                host=parsed.hostname or "127.0.0.1",
+                port=parsed.port or 5432,
+                dbname=(parsed.path or "/agrolink").lstrip("/"),
+                user=unquote(parsed.username or "postgres"),
+                password=unquote(parsed.password or "postgres"),
+            )
 
         raw_conn = _do_connect()
         return PostgresCompatConnection(raw_conn)
