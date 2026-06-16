@@ -1,10 +1,10 @@
-import os
-import sqlite3
+﻿import os
 from datetime import datetime
 import re
 from pathlib import Path
 
 import psycopg2
+import sqlite3
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError
 from flask import (
@@ -69,33 +69,12 @@ class PostgresCompatConnection:
 
     def __init__(self, conn):
         self._conn = conn
-        self.db_type = "postgres"
 
     def execute(self, query, params=None):
         pg_query = query.replace("?", "%s")
         cur = self._conn.cursor(cursor_factory=DictCursor)
         cur.execute(pg_query, params or ())
         return cur
-
-    def commit(self):
-        self._conn.commit()
-
-    def close(self):
-        self._conn.close()
-
-
-class SqliteCompatConnection:
-    """Conexão SQLite com API simples para execute/commit/close."""
-
-    def __init__(self, conn):
-        self._conn = conn
-        self._conn.row_factory = sqlite3.Row
-        self._conn.execute("PRAGMA foreign_keys = ON")
-        self.db_type = "sqlite"
-
-    def execute(self, query, params=None):
-        sqlite_query = query.replace("%s", "?")
-        return self._conn.execute(sqlite_query, params or ())
 
     def commit(self):
         self._conn.commit()
@@ -111,15 +90,7 @@ def connect_db():
         # Solucao: parsear a URL manualmente e conectar por parametros nomeados,
         # sem passar a DSN string (assim o psycopg2 nao toca no ambiente).
         from urllib.parse import urlparse, unquote
-
         parsed = urlparse(DEFAULT_DATABASE_URL)
-        if parsed.scheme.startswith("sqlite"):
-            sqlite_path = parsed.path
-            if sqlite_path.startswith("/"):
-                sqlite_path = sqlite_path[1:]
-            sqlite_conn = sqlite3.connect(sqlite_path or (Path(BASE_DIR) / "agrolink.sqlite3"))
-            return SqliteCompatConnection(sqlite_conn)
-
         raw_conn = psycopg2.connect(
             host=parsed.hostname or "127.0.0.1",
             port=parsed.port or 5432,
@@ -129,9 +100,33 @@ def connect_db():
             options="-c client_encoding=UTF8",
         )
         return PostgresCompatConnection(raw_conn)
-    except OperationalError as exc:
-        sqlite_conn = sqlite3.connect(Path(BASE_DIR) / "agrolink.sqlite3")
-        return SqliteCompatConnection(sqlite_conn)
+    except OperationalError:
+        # Fallback para SQLite local em ambiente de desenvolvimento.
+        sqlite_path = BASE_DIR / "agrolink.sqlite3"
+        sqlite_conn = sqlite3.connect(str(sqlite_path), detect_types=sqlite3.PARSE_DECLTYPES)
+        sqlite_conn.row_factory = sqlite3.Row
+
+        class SQLiteCompatConnection:
+            """Compatibilidade mínima para usar sqlite3 como alternativa ao Postgres."""
+
+            def __init__(self, conn):
+                self._conn = conn
+                self.db_type = "sqlite"
+
+            def execute(self, query, params=None):
+                # Aceita placeholders '%s' (usados no seed) ou '?' (usados no resto do app).
+                q = query.replace("%s", "?")
+                cur = self._conn.cursor()
+                cur.execute(q, params or ())
+                return cur
+
+            def commit(self):
+                self._conn.commit()
+
+            def close(self):
+                self._conn.close()
+
+        return SQLiteCompatConnection(sqlite_conn)
 
 VALID_UFS = {
     "AC",
@@ -1026,12 +1021,10 @@ def get_db():
 
 def init_db():
     db = connect_db()
-    primary_key_sql = "INTEGER PRIMARY KEY AUTOINCREMENT" if db.db_type == "sqlite" else "SERIAL PRIMARY KEY"
-
     db.execute(
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS users (
-            id {primary_key_sql},
+            id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
@@ -1046,9 +1039,9 @@ def init_db():
         """
     )
     db.execute(
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS products (
-            id {primary_key_sql},
+            id SERIAL PRIMARY KEY,
             producer_id INTEGER NOT NULL REFERENCES users (id),
             title TEXT NOT NULL,
             description TEXT NOT NULL,
@@ -1059,9 +1052,9 @@ def init_db():
         """
     )
     db.execute(
-        f"""
+        """
         CREATE TABLE IF NOT EXISTS messages (
-            id {primary_key_sql},
+            id SERIAL PRIMARY KEY,
             sender_id INTEGER NOT NULL REFERENCES users (id),
             receiver_id INTEGER NOT NULL REFERENCES users (id),
             content TEXT NOT NULL,
