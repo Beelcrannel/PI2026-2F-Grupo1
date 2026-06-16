@@ -60,7 +60,7 @@ if not os.getenv("DATABASE_URL"):
 
 DEFAULT_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:postgres@127.0.0.1:5432/agrolink",
+    "postgresql://postgres:Morango@127.0.0.1:5432/agrolink",
 )
 
 
@@ -91,42 +91,25 @@ def connect_db():
         # sem passar a DSN string (assim o psycopg2 nao toca no ambiente).
         from urllib.parse import urlparse, unquote
         parsed = urlparse(DEFAULT_DATABASE_URL)
-        raw_conn = psycopg2.connect(
-            host=parsed.hostname or "127.0.0.1",
-            port=parsed.port or 5432,
-            dbname=(parsed.path or "/agrolink").lstrip("/"),
-            user=unquote(parsed.username or "postgres"),
-            password=unquote(parsed.password or "postgres"),
-            options="-c client_encoding=UTF8",
-        )
+
+        def _do_connect():
+            return psycopg2.connect(
+                host=parsed.hostname or "127.0.0.1",
+                port=parsed.port or 5432,
+                dbname=(parsed.path or "/agrolink").lstrip("/"),
+                user=unquote(parsed.username or "postgres"),
+                password=unquote(parsed.password or "postgres"),
+            )
+
+        raw_conn = _do_connect()
         return PostgresCompatConnection(raw_conn)
-    except OperationalError:
-        # Fallback para SQLite local em ambiente de desenvolvimento.
-        sqlite_path = BASE_DIR / "agrolink.sqlite3"
-        sqlite_conn = sqlite3.connect(str(sqlite_path), detect_types=sqlite3.PARSE_DECLTYPES)
-        sqlite_conn.row_factory = sqlite3.Row
-
-        class SQLiteCompatConnection:
-            """Compatibilidade mínima para usar sqlite3 como alternativa ao Postgres."""
-
-            def __init__(self, conn):
-                self._conn = conn
-                self.db_type = "sqlite"
-
-            def execute(self, query, params=None):
-                # Aceita placeholders '%s' (usados no seed) ou '?' (usados no resto do app).
-                q = query.replace("%s", "?")
-                cur = self._conn.cursor()
-                cur.execute(q, params or ())
-                return cur
-
-            def commit(self):
-                self._conn.commit()
-
-            def close(self):
-                self._conn.close()
-
-        return SQLiteCompatConnection(sqlite_conn)
+    except OperationalError as exc:
+        raise RuntimeError(
+            "Nao foi possivel conectar ao PostgreSQL. "
+            "Configure a variavel DATABASE_URL com usuario/senha corretos e confirme "
+            "que o banco existe. Exemplo: "
+            "postgresql://SEU_USUARIO:SUA_SENHA@127.0.0.1:5432/agrolink"
+        ) from exc
 
 VALID_UFS = {
     "AC",
