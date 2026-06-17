@@ -6,11 +6,11 @@
 :root {
   /* Paleta: terra, verde campo, creme */
   --soil:       #003701;   /* quase preto */
-  --bark:       #309129;   /* marrom médio */
+  --bark:       #000000;   /* marrom médio */
   --hay:        #003701;   /* dourado palha */
   --hay-light:  #ffffff;   /* creme amarelado */
   --field:      #034c00;   /* verde campo */
-  --field-dim:  #084203;   /* verde escuro */
+  --field-dim:  #000000;   /* verde escuro */
   --sky:        #331f001d;   /* verde-claro de fundo */
   --cream:      #e7e8c3;   /* fundo principal */
   --white:      #ffffff;
