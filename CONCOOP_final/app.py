@@ -4,7 +4,6 @@ import re
 from pathlib import Path
 
 import psycopg2
-import sqlite3
 from psycopg2.extras import DictCursor
 from psycopg2 import OperationalError
 from flask import (
@@ -104,11 +103,14 @@ def connect_db():
         raw_conn = _do_connect()
         return PostgresCompatConnection(raw_conn)
     except OperationalError as exc:
+        error_details = repr(exc)
+        if exc.args:
+            error_details += " | args=" + repr(exc.args)
         raise RuntimeError(
             "Nao foi possivel conectar ao PostgreSQL. "
-            "Configure a variavel DATABASE_URL com usuario/senha corretos e confirme "
-            "que o banco existe. Exemplo: "
-            "postgresql://SEU_USUARIO:SUA_SENHA@127.0.0.1:5432/agrolink"
+            "Verifique se o servidor está rodando, se o DB existe e se a URL está correta. "
+            "Exemplo: postgresql://agrolink:Morango@127.0.0.1:5432/agrolink\n"
+            f"Detalhes do erro: {error_details}"
         ) from exc
 
 VALID_UFS = {
@@ -495,6 +497,18 @@ def create_app():
         received_messages = []
         sent_messages = []
 
+        services = []
+        if g.user["role"] == "servidor":
+            services = db.execute(
+                """
+                SELECT id, title, description, category, price, location, contact, created_at
+                FROM services
+                WHERE provider_id = ?
+                ORDER BY created_at DESC
+                """,
+                (g.user["id"],),
+            ).fetchall()
+
         if g.user["role"] == "produtor":
             products = db.execute(
                 """
@@ -509,7 +523,7 @@ def create_app():
             received_messages = db.execute(
                 """
                 SELECT m.id, m.content, m.created_at,
-                       u.name AS vet_name
+                       m.sender_id, u.name AS vet_name
                 FROM messages m
                 JOIN users u ON m.sender_id = u.id
                 WHERE m.receiver_id = ?
@@ -522,7 +536,7 @@ def create_app():
             received_messages = db.execute(
                 """
                 SELECT m.id, m.content, m.created_at,
-                       u.name AS producer_name
+                       m.sender_id, u.name AS producer_name
                 FROM messages m
                 JOIN users u ON m.sender_id = u.id
                 WHERE m.receiver_id = ?
@@ -534,7 +548,7 @@ def create_app():
         sent_messages = db.execute(
             """
             SELECT m.id, m.content, m.created_at,
-                   u.name AS receiver_name
+                   m.receiver_id, u.name AS receiver_name
             FROM messages m
             JOIN users u ON m.receiver_id = u.id
             WHERE m.sender_id = ?
@@ -553,6 +567,7 @@ def create_app():
         return render_template(
             "dashboard.html",
             products=products,
+            services=services,
             received_messages=received_messages,
             sent_messages=sent_messages,
         )
@@ -927,6 +942,102 @@ def create_app():
         flash("Status de verificação atualizado.", "success")
         return redirect(url_for("admin_dashboard"))
 
+    @app.route("/servicos")
+    def servicos():
+        db = get_db()
+        lista = db.execute(
+            """
+            SELECT s.id, s.title, s.description, s.category,
+                   s.price, s.location, s.contact, s.created_at,
+                   u.name AS provider_name, u.id AS provider_id
+            FROM services s
+            JOIN users u ON u.id = s.provider_id
+            ORDER BY s.created_at DESC
+            """
+        ).fetchall()
+        return render_template("servicos.html", servicos=lista)
+
+    @app.route("/servicos/novo", methods=["GET", "POST"])
+    def novo_servico():
+        if g.user is None or g.user["role"] != "servidor":
+            flash("Apenas prestadores de serviços podem publicar serviços.", "error")
+            return redirect(url_for("login"))
+
+        if request.method == "POST":
+            title       = request.form.get("title", "").strip()
+            description = request.form.get("description", "").strip()
+            category    = request.form.get("category", "").strip()
+            price       = request.form.get("price", "").strip()
+            location    = request.form.get("location", "").strip()
+            contact     = request.form.get("contact", "").strip()
+
+            if not title or not description:
+                flash("Título e descrição são obrigatórios.", "error")
+            else:
+                db = get_db()
+                db.execute(
+                    """
+                    INSERT INTO services
+                        (provider_id, title, description, category, price, location, contact, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (g.user["id"], title, description,
+                     category or None, price or None,
+                     location or None, contact or None,
+                     datetime.utcnow()),
+                )
+                db.commit()
+                flash("Serviço publicado com sucesso!", "success")
+                return redirect(url_for("dashboard"))
+
+        return render_template("novo_servico.html")
+
+    @app.route("/ajuda-animal")
+    def ajuda_animal():
+        db = get_db()
+        relatos = db.execute(
+            """
+            SELECT r.id, r.title, r.description, r.species, r.urgency,
+                   r.location, r.status, r.created_at, u.name AS author_name
+            FROM animal_reports r
+            JOIN users u ON u.id = r.user_id
+            ORDER BY r.created_at DESC
+            """
+        ).fetchall()
+        return render_template("ajuda_animal.html", relatos=relatos)
+
+    @app.route("/ajuda-animal/novo", methods=["GET", "POST"])
+    def novo_relato_animal():
+        if g.user is None:
+            flash("Faça login para publicar um relato.", "error")
+            return redirect(url_for("login"))
+
+        if request.method == "POST":
+            title       = request.form.get("title", "").strip()
+            description = request.form.get("description", "").strip()
+            species     = request.form.get("species", "").strip()
+            urgency     = request.form.get("urgency", "media").strip()
+            location    = request.form.get("location", "").strip()
+
+            if not title or not description or not species:
+                flash("Título, descrição e espécie são obrigatórios.", "error")
+            else:
+                db = get_db()
+                db.execute(
+                    """
+                    INSERT INTO animal_reports
+                        (user_id, title, description, species, urgency, location, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (g.user["id"], title, description, species,
+                     urgency, location or None, datetime.utcnow()),
+                )
+                db.commit()
+                flash("Relato publicado! A comunidade irá te ajudar em breve.", "success")
+                return redirect(url_for("ajuda_animal"))
+
+        return render_template("novo_relato_animal.html")
+
     @app.route("/message/<int:vet_id>", methods=["GET", "POST"])
     def message_vet(vet_id):
         if g.user is None:
@@ -1043,6 +1154,38 @@ def init_db():
             content TEXT NOT NULL,
             created_at TIMESTAMP NOT NULL,
             is_read INTEGER NOT NULL DEFAULT 0
+        )
+        """
+    )
+
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS services (
+            id SERIAL PRIMARY KEY,
+            provider_id INTEGER NOT NULL REFERENCES users (id),
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            category TEXT,
+            price TEXT,
+            location TEXT,
+            contact TEXT,
+            created_at TIMESTAMP NOT NULL
+        )
+        """
+    )
+
+    db.execute(
+        """
+        CREATE TABLE IF NOT EXISTS animal_reports (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users (id),
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            species TEXT,
+            urgency TEXT NOT NULL DEFAULT 'media',
+            location TEXT,
+            status TEXT NOT NULL DEFAULT 'aberto',
+            created_at TIMESTAMP NOT NULL
         )
         """
     )

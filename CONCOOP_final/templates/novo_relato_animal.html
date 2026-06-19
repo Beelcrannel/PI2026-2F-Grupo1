@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Novo Relato — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;">
+
+  <div class="page-header">
+    <h1>Publicar Relato</h1>
+    <p>Descreva o problema com seu animal e receba orientações da comunidade.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:2rem;align-items:start;">
+
+    <div class="card" style="padding:2rem;">
+      <form method="POST">
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+          <div class="form-field">
+            <label>Título *</label>
+            <input type="text" name="title" placeholder="Ex: Vaca com sinais de mastite — preciso de ajuda" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label>Espécie do Animal *</label>
+              <select name="species" required>
+                <option value="">Selecione...</option>
+                <option value="Bovino">🐄 Bovino</option>
+                <option value="Suíno">🐷 Suíno</option>
+                <option value="Aves">🐔 Aves</option>
+                <option value="Equino">🐴 Equino</option>
+                <option value="Ovino">🐑 Ovino</option>
+                <option value="Caprino">🐐 Caprino</option>
+                <option value="Canino">🐕 Canino</option>
+                <option value="Outro">🐾 Outro</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Urgência</label>
+              <select name="urgency">
+                <option value="baixa">🟢 Baixa — pode esperar</option>
+                <option value="media" selected>🟡 Média — preciso de orientação</option>
+                <option value="alta">🔴 Alta — animal em risco</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Descrição *</label>
+            <textarea name="description" rows="6"
+              placeholder="Descreva com detalhes: quais sintomas observou, há quantos dias, se já usou algum medicamento, quantos animais estão afetados..." required></textarea>
+          </div>
+
+          <div class="form-field">
+            <label>Localização</label>
+            <input type="text" name="location" placeholder="Ex: Passos, MG">
+          </div>
+
+          <div style="display:flex;gap:0.75rem;padding-top:0.5rem;">
+            <button type="submit" class="btn btn-primary" style="flex:1;">Publicar Relato</button>
+            <a href="{{ url_for('ajuda_animal') }}" class="btn btn-outline">Cancelar</a>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <aside style="position:sticky;top:80px;display:flex;flex-direction:column;gap:1rem;">
+      <div class="card" style="padding:1.5rem;">
+        <h4 style="font-size:0.9rem;margin-bottom:1rem;color:var(--soil);">💡 Dicas para um bom relato</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--muted);">
+          <li>✅ Informe há quantos dias o problema começou</li>
+          <li>✅ Descreva todos os sintomas observados</li>
+          <li>✅ Mencione medicamentos já utilizados</li>
+          <li>✅ Informe quantos animais estão afetados</li>
+          <li>✅ Sua localização ajuda a identificar causas regionais</li>
+        </ul>
+      </div>
+      <div class="card" style="text-align:center;padding:1.5rem;background:var(--field);color:#fff;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">🚨</div>
+        <h3 style="font-size:0.95rem;margin-bottom:0.5rem;color:#fff;">Emergência?</h3>
+        <p style="font-size:0.82rem;opacity:0.9;margin-bottom:1rem;">Se o animal está em risco imediato, fale direto com um veterinário.</p>
+        <a href="{{ url_for('vets') }}" class="btn btn-gold btn-full">Ver Veterinários</a>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+@media (max-width: 768px) {
+  [style*="grid-template-columns:1fr 300px"] { grid-template-columns: 1fr !important; }
+  [style*="position:sticky"] { position: static !important; }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Publicar Serviço — CONCOOP{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;">
+
+  <div class="page-header">
+    <h1>Publicar Serviço</h1>
+    <p>Divulgue seu serviço para produtores rurais da plataforma.</p>
+  </div>
+
+  <div class="servico-layout">
+
+    <div class="card" style="padding:2rem;">
+      <form method="POST" class="form-grid">
+
+        <div class="form-field">
+          <label>Título do Serviço *</label>
+          <input type="text" name="title" placeholder="Ex: Assistência técnica em manejo de bovinos" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Categoria</label>
+            <select name="category">
+              <option value="">Selecione uma categoria</option>
+              <option value="Manejo Animal">🐄 Manejo Animal</option>
+              <option value="Assistência Técnica">🔧 Assistência Técnica</option>
+              <option value="Consultoria Agrícola">🌱 Consultoria Agrícola</option>
+              <option value="Maquinário e Equipamentos">🚜 Maquinário e Equipamentos</option>
+              <option value="Transporte">🚛 Transporte</option>
+              <option value="Alimentação e Nutrição">🌾 Alimentação e Nutrição</option>
+              <option value="Inseminação">💉 Inseminação</option>
+              <option value="Outro">📋 Outro</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Área de Atendimento</label>
+            <input type="text" name="location" placeholder="Ex: Sul de MG, região de Passos">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label>Descrição *</label>
+          <textarea name="description" rows="6"
+            placeholder="Descreva o serviço que você oferece, sua experiência, diferenciais e o que está incluso..." required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Preço / Tabela</label>
+            <input type="text" name="price" placeholder="Ex: R$ 150/hora ou A combinar">
+          </div>
+          <div class="form-field">
+            <label>Contato (WhatsApp ou Telefone)</label>
+            <input type="text" name="contact" placeholder="Ex: (35) 99999-0000">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+          <button type="submit" class="btn btn-primary" style="flex:1;">Publicar Serviço</button>
+          <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancelar</a>
+        </div>
+
+      </form>
+    </div>
+
+    <aside style="position:sticky;top:80px;display:flex;flex-direction:column;gap:1rem;">
+
+      <div class="card" style="padding:1.5rem;">
+        <div style="font-size:2rem;margin-bottom:0.75rem;">🔧</div>
+        <h3 style="font-size:1rem;margin-bottom:0.5rem;">Como funciona?</h3>
+        <p class="card-meta">Seu serviço ficará visível para todos os produtores da plataforma. Eles entrarão em contato diretamente pelo chat ou pelo número informado.</p>
+      </div>
+
+      <div class="card" style="padding:1.5rem;">
+        <h4 style="font-size:0.9rem;margin-bottom:1rem;color:var(--soil);">💡 Dicas para um bom anúncio</h4>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--muted);">
+          <li>✅ Seja específico na descrição</li>
+          <li>✅ Informe sua área de atendimento</li>
+          <li>✅ Coloque um preço ou faixa de valor</li>
+          <li>✅ Mantenha o contato atualizado</li>
+          <li>✅ Destaque sua experiência</li>
+        </ul>
+      </div>
+
+      <div class="card" style="padding:1.5rem;">
+        <h4 style="font-size:0.9rem;margin-bottom:0.75rem;color:var(--soil);">📋 Categorias disponíveis</h4>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+          <span class="card-tag tag-brown">Manejo Animal</span>
+          <span class="card-tag tag-green">Consultoria</span>
+          <span class="card-tag tag-gold">Maquinário</span>
+          <span class="card-tag tag-blue">Transporte</span>
+          <span class="card-tag tag-brown">Inseminação</span>
+          <span class="card-tag tag-green">Nutrição</span>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.servico-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 2rem;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .servico-layout { grid-template-columns: 1fr; }
+  .servico-layout aside { position: static !important; }
+}
+</style>
+{% endblock %}
