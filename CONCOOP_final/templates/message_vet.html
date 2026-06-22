@@ -15,10 +15,10 @@
           </div>
           <div>
             <h3>{{ vet.name }}</h3>
-            <p>{% if vet.city %}📍 {{ vet.city }}{% else %}Veterinário{% endif %}</p>
+            <p>{% if vet.city %} {{ vet.city }}{% else %}Veterinário{% endif %}</p>
           </div>
           {% if vet.is_vet_verified %}
-            <span class="badge badge-green" style="margin-left:auto;flex-shrink:0;">✓</span>
+            <span class="badge badge-green" style="margin-left:auto;flex-shrink:0;"></span>
           {% endif %}
         </div>
         <div class="vet-card-body">
@@ -33,7 +33,7 @@
 
       <div class="card mt-2" style="padding:1.25rem;">
         <p style="font-size:0.8rem;color:var(--muted);line-height:1.6;">
-          💡 <strong>Dica:</strong> Descreva os sintomas do animal, espécie, raça, idade estimada e localização. Quanto mais detalhes, melhor o atendimento.
+           <strong>Dica:</strong> Descreva os sintomas do animal, espécie, raça, idade estimada e localização. Quanto mais detalhes, melhor o atendimento.
         </p>
       </div>
     </div>

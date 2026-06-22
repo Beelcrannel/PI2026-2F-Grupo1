@@ -9,63 +9,88 @@
       <h1>Serviços Rurais</h1>
       <p>{{ servicos|length }} serviço{% if servicos|length != 1 %}s{% endif %} disponível{% if servicos|length != 1 %}s{% endif %}</p>
     </div>
-    {% if g.user and g.user.role == 'servidor' %}
-      <a href="{{ url_for('novo_servico') }}" class="btn btn-primary">+ Publicar serviço</a>
+    {% if g.user %}
+      <a href="{{ url_for('novo_servico') }}" class="btn btn-primary">Publicar servico</a>
     {% endif %}
   </div>
 
   {% if servicos %}
-    <div class="card-grid">
+    <div class="market-grid">
       {% for s in servicos %}
-        <article class="card card-hover">
-
-          <div style="width:100%;height:120px;border-radius:var(--r-md);margin-bottom:1rem;display:grid;place-items:center;font-size:2.5rem;
-            background:linear-gradient(135deg,#f0fdf4,#d1fae5);">
-            {% if s.category == 'Manejo Animal' %}🐄
-            {% elif s.category == 'Assistência Técnica' %}🔧
-            {% elif s.category == 'Consultoria Agrícola' %}🌱
-            {% elif s.category == 'Maquinário e Equipamentos' %}🚜
-            {% elif s.category == 'Transporte' %}🚛
-            {% elif s.category == 'Alimentação e Nutrição' %}🌾
-            {% elif s.category == 'Inseminação' %}💉
-            {% else %}📋{% endif %}
+        <article class="market-card">
+          <div class="market-card-img">
+            <div class="market-card-img-placeholder" style="background:linear-gradient(135deg,#f0fdf4,#e7e8c3);">
+              <svg width="36" height="36" fill="none" stroke="var(--muted)" stroke-width="1.4" viewBox="0 0 24 24">
+                <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </div>
           </div>
-
-          {% if s.category %}
-            <span class="card-tag tag-brown">{{ s.category }}</span>
-          {% endif %}
-
-          <h3 class="card-title">{{ s.title }}</h3>
-          <p class="card-desc">{{ s.description|truncate(120) }}</p>
-
-          {% if s.price %}
-            <p class="price">{{ s.price }}</p>
-          {% endif %}
-
-          <div style="display:flex;flex-direction:column;gap:0.3rem;margin-top:0.6rem;font-size:0.8rem;color:var(--muted);">
-            {% if s.location %}<span>📍 {{ s.location }}</span>{% endif %}
-            {% if s.contact %}<span>📞 {{ s.contact }}</span>{% endif %}
-            <span>👤 {{ s.provider_name }}</span>
-          </div>
-
-          <div class="card-actions">
-            <a href="{{ url_for('chat', user_id=s.provider_id) }}" class="btn btn-primary btn-sm">💬 Contatar</a>
-            <a href="{{ url_for('profile', user_id=s.provider_id) }}" class="btn btn-outline btn-sm">Ver perfil</a>
+          <div class="market-card-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+              {% if s.category %}
+                <span class="card-tag tag-brown" style="margin-bottom:0;">{{ s.category }}</span>
+              {% else %}
+                <span class="card-tag tag-brown" style="margin-bottom:0;">Servico</span>
+              {% endif %}
+              {% if s.location %}<span style="font-size:0.75rem;color:var(--muted);">{{ s.location }}</span>{% endif %}
+            </div>
+            <h3 class="market-card-title">{{ s.title }}</h3>
+            <p class="market-card-producer">{{ s.provider_name }}</p>
+            <p class="market-card-desc">{{ s.description|truncate(100) }}</p>
+            {% if s.price %}<p class="market-card-price">{{ s.price }}</p>{% endif %}
+            {% if s.contact %}
+              <p style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem;">{{ s.contact }}</p>
+            {% endif %}
+            <div class="market-card-actions">
+              <a href="{{ url_for('chat', user_id=s.provider_id) }}" class="btn btn-primary btn-sm">Contatar</a>
+              <a href="{{ url_for('profile', user_id=s.provider_id) }}" class="btn btn-outline btn-sm">Perfil</a>
+            </div>
           </div>
         </article>
       {% endfor %}
     </div>
-
   {% else %}
     <div class="empty" style="margin-top:3rem;">
-      <div style="font-size:3rem;">🔧</div>
-      <h3>Nenhum serviço publicado ainda</h3>
-      <p>Prestadores de serviços podem divulgar seu trabalho aqui.</p>
-      {% if g.user and g.user.role == 'servidor' %}
-        <a href="{{ url_for('novo_servico') }}" class="btn btn-primary" style="margin-top:1rem;">+ Publicar meu serviço</a>
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24">
+        <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+      </svg>
+      <h3>Nenhum servico publicado ainda</h3>
+      <p>Seja o primeiro a divulgar seu trabalho na plataforma.</p>
+      {% if g.user %}
+        <a href="{{ url_for('novo_servico') }}" class="btn btn-primary" style="margin-top:1rem;">Publicar meu servico</a>
       {% endif %}
     </div>
   {% endif %}
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+.market-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
+}
+.market-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.market-card-img { width:100%; height:140px; overflow:hidden; background:var(--cream); flex-shrink:0; }
+.market-card-img img { width:100%; height:100%; object-fit:cover; }
+.market-card-img-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--muted); }
+.market-card-body { padding:1.1rem; display:flex; flex-direction:column; flex:1; }
+.market-card-title { font-family:'Playfair Display',serif; font-size:0.98rem; font-weight:700; color:var(--soil); margin-bottom:0.2rem; line-height:1.3; }
+.market-card-producer { font-size:0.78rem; color:var(--muted); margin-bottom:0.5rem; }
+.market-card-desc { font-size:0.82rem; color:var(--muted); line-height:1.5; flex:1; }
+.market-card-price { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:var(--field-dim); margin-top:0.6rem; }
+.market-card-actions { display:flex; gap:0.5rem; margin-top:0.85rem; flex-wrap:wrap; }
+</style>
 {% endblock %}

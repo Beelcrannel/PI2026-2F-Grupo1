@@ -19,17 +19,17 @@
       <div class="profile-hero-info">
         <h1>{{ user.name }}</h1>
         <p>
-          {% if user.role == 'produtor' %}🌱 Produtor Rural
-          {% elif user.role == 'servidor' %}🔧 Prestador de Serviços
-          {% elif user.role == 'veterinario' %}🩺 Veterinário
-          {% else %}👤 Usuário{% endif %}
-          {% if user.city %} &nbsp;•&nbsp; 📍 {{ user.city }}{% endif %}
+          {% if user.role == 'produtor' %} Produtor Rural
+          {% elif user.role == 'servidor' %} Prestador de Serviços
+          {% elif user.role == 'veterinario' %} Veterinário
+          {% else %} Usuário{% endif %}
+          {% if user.city %} &nbsp;•&nbsp;  {{ user.city }}{% endif %}
         </p>
 
         {% if user.role == 'veterinario' %}
           <div style="margin-top:0.75rem;">
             {% if user.is_vet_verified %}
-              <span class="badge badge-green">✓ Veterinário verificado</span>
+              <span class="badge badge-green"> Veterinário verificado</span>
             {% else %}
               <span class="badge badge-gold">Aguardando verificação</span>
             {% endif %}
@@ -39,7 +39,7 @@
         {% if g.user and g.user.id != user.id %}
           <div style="margin-top:1.25rem;">
             <a href="{{ url_for('chat', user_id=user.id) }}" class="btn btn-gold">
-              💬 Enviar mensagem
+               Enviar mensagem
             </a>
           </div>
         {% endif %}

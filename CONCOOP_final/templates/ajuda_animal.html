@@ -7,7 +7,7 @@
   <!-- Hero -->
   <div class="hero" style="padding:2.5rem;">
     <div class="hero-inner">
-      <div class="hero-label">🐄 Comunidade Rural</div>
+      <div class="hero-label"> Comunidade Rural</div>
       <h1>Ajuda com Animais</h1>
       <p>Compartilhe problemas com seus animais e receba orientações de produtores experientes e veterinários da rede.</p>
       <div class="hero-btns">
@@ -46,10 +46,10 @@
                     {% elif r.status == 'andamento' %}
                       <span class="badge badge-gold">Em andamento</span>
                     {% else %}
-                      <span class="badge badge-blue">✓ Resolvido</span>
+                      <span class="badge badge-blue"> Resolvido</span>
                     {% endif %}
                     {% if r.urgency == 'alta' %}
-                      <span class="badge badge-red">🚨 Urgente</span>
+                      <span class="badge badge-red"> Urgente</span>
                     {% endif %}
                     {% if r.species %}
                       <span class="card-tag tag-green" style="margin-bottom:0;">{{ r.species }}</span>
@@ -58,9 +58,9 @@
                   <h3 class="card-title" style="font-size:1rem;margin-bottom:0.4rem;">{{ r.title }}</h3>
                   <p class="card-desc">{{ r.description | truncate(180) }}</p>
                   <div style="display:flex;flex-wrap:wrap;gap:0.75rem;font-size:0.78rem;color:var(--muted);margin-top:0.6rem;">
-                    <span>👤 {{ r.author_name }}</span>
-                    {% if r.location %}<span>📍 {{ r.location }}</span>{% endif %}
-                    <span>📅 {{ r.created_at.strftime('%d/%m/%Y') if r.created_at else '' }}</span>
+                    <span> {{ r.author_name }}</span>
+                    {% if r.location %}<span> {{ r.location }}</span>{% endif %}
+                    <span> {{ r.created_at.strftime('%d/%m/%Y') if r.created_at else '' }}</span>
                   </div>
                 </div>
                 <a href="{{ url_for('vets') }}" class="btn btn-primary btn-sm" style="flex-shrink:0;">
@@ -74,7 +74,7 @@
       {% else %}
         <!-- Estado vazio -->
         <div class="empty" style="border-style:dashed;padding:4rem 2rem;">
-          <div style="font-size:3rem;margin-bottom:0.5rem;">🐄</div>
+          <div style="font-size:3rem;margin-bottom:0.5rem;"></div>
           <h3 style="font-size:1.1rem;margin-bottom:0.5rem;">Nenhum relato ainda</h3>
           <p>Seja o primeiro a compartilhar uma dificuldade com seus animais.<br>A comunidade está aqui para ajudar!</p>
           {% if g.user %}
@@ -100,19 +100,19 @@
       {% endif %}
 
       <div class="card" style="text-align:center;padding:1.75rem 1.5rem;">
-        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🩺</div>
+        <div style="font-size:2.5rem;margin-bottom:0.75rem;"></div>
         <h3 style="font-size:1.05rem;margin-bottom:0.5rem;">Precisa de ajuda agora?</h3>
         <p class="card-meta" style="margin-bottom:1.25rem;">Fale diretamente com um veterinário verificado da plataforma.</p>
         <a href="{{ url_for('vets') }}" class="btn btn-primary btn-full">Consultar Veterinário</a>
       </div>
 
       <div class="card" style="padding:1.5rem;">
-        <h4 style="font-size:0.9rem;margin-bottom:1rem;color:var(--soil);">💡 Dicas ao relatar</h4>
+        <h4 style="font-size:0.9rem;margin-bottom:1rem;color:var(--soil);"> Dicas ao relatar</h4>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;color:var(--muted);">
-          <li>🐄 Informe a espécie e raça do animal</li>
-          <li>📍 Diga sua localização</li>
-          <li>📅 Há quantos dias o sintoma apareceu</li>
-          <li>🌡️ Se tem febre ou outros sintomas</li>
+          <li> Informe a espécie e raça do animal</li>
+          <li> Diga sua localização</li>
+          <li> Há quantos dias o sintoma apareceu</li>
+          <li>🌡 Se tem febre ou outros sintomas</li>
           <li>💊 Medicamentos já usados</li>
         </ul>
       </div>

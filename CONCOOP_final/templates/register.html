@@ -6,13 +6,13 @@
   <div class="auth-box" style="max-width:520px;">
     <div class="auth-logo-badge">C</div>
     <h1 class="auth-title">Criar conta</h1>
-    <p class="auth-sub">Junte-se à rede que conecta o campo.</p>
+    <p class="auth-sub">Junte-se a rede que conecta o campo.</p>
 
     <form method="post" class="form-grid" enctype="multipart/form-data">
       <div class="form-row">
         <div class="form-field">
           <label for="name">Nome completo</label>
-          <input type="text" id="name" name="name" required placeholder="João Silva">
+          <input type="text" id="name" name="name" required placeholder="Joao Silva">
         </div>
         <div class="form-field">
           <label for="city">Cidade (opcional)</label>
@@ -26,7 +26,7 @@
       </div>
 
       <div class="form-field">
-        <label for="password">Senha <span style="font-weight:400;text-transform:none;color:var(--muted);">(mín. 4 caracteres)</span></label>
+        <label for="password">Senha <span style="font-weight:400;text-transform:none;color:var(--muted);">(min. 4 caracteres)</span></label>
         <input type="password" id="password" name="password" required minlength="4" placeholder="••••••••">
       </div>
 
@@ -35,9 +35,9 @@
         <select id="role" name="role" required>
           <option value="">Selecione...</option>
           <option value="produtor">Produtor Rural</option>
-          <option value="servidor">Prestador de Serviços</option>
-          <option value="veterinario">Veterinário</option>
-          <option value="usuario">Usuário Comum</option>
+          <option value="servidor">Prestador de Servicos</option>
+          <option value="veterinario">Veterinario</option>
+          <option value="usuario">Usuario Comum</option>
         </select>
       </div>
 
@@ -47,8 +47,8 @@
       </div>
 
       <div class="form-field">
-        <label for="bio">Bio / Descrição (opcional)</label>
-        <textarea id="bio" name="bio" rows="3" placeholder="Conte sobre você, sua propriedade ou especialidade..."></textarea>
+        <label for="bio">Bio / Descricao (opcional)</label>
+        <textarea id="bio" name="bio" rows="3" placeholder="Conte sobre voce, sua propriedade ou especialidade..."></textarea>
       </div>
 
       <div class="form-field">
@@ -56,11 +56,11 @@
         <input type="file" id="profile_image" name="profile_image" accept="image/*">
       </div>
 
-      <button type="submit" class="btn btn-primary btn-lg btn-full">Criar conta grátis</button>
+      <button type="submit" class="btn btn-primary btn-lg btn-full">Criar conta</button>
     </form>
 
     <p class="form-footer-link">
-      Já tem conta? <a href="{{ url_for('login') }}">Entrar</a>
+      Ja tem conta? <a href="{{ url_for('login') }}">Entrar</a>
     </p>
   </div>
 </div>

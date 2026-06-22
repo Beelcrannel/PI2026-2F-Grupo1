@@ -9,38 +9,84 @@
     <p>Profissionais verificados disponíveis para atendimento e consultoria.</p>
   </div>
 
-  <div class="card-grid">
-    {% for v in vets %}
-      <div class="vet-card">
-        <div class="vet-card-header">
-          <div class="avatar-placeholder avatar-lg" style="flex-shrink:0;font-size:1.3rem;">
+  {% if vets %}
+    <div class="vets-row">
+      {% for v in vets %}
+        <div class="vet-item">
+          <div class="vet-item-avatar">
             {{ v.name[0]|upper }}
           </div>
-          <div>
-            <h3>{{ v.name }}</h3>
-            <p>{% if v.city %}📍 {{ v.city }}{% else %}Veterinário{% endif %}</p>
+          <div class="vet-item-info">
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+              <h3 class="vet-item-name">{{ v.name }}</h3>
+              {% if v.is_vet_verified %}
+                <span class="badge badge-green" style="font-size:0.68rem;">Verificado</span>
+              {% endif %}
+            </div>
+            {% if v.city %}<p class="vet-item-city">{{ v.city }}</p>{% endif %}
+            {% if v.crmv %}<p class="vet-item-crmv">{{ v.crmv }}</p>{% endif %}
+            {% if v.bio %}<p class="vet-item-bio">{{ v.bio|truncate(120) }}</p>{% endif %}
           </div>
-          {% if v.is_vet_verified %}
-            <span class="badge badge-green" style="margin-left:auto;flex-shrink:0;">✓</span>
-          {% endif %}
+          <div class="vet-item-action">
+            <a href="{{ url_for('message_vet', vet_id=v.id) }}" class="btn btn-primary btn-sm">Contatar</a>
+            <a href="{{ url_for('profile', user_id=v.id) }}" class="btn btn-outline btn-sm">Perfil</a>
+          </div>
         </div>
-        <div class="vet-card-body">
-          <p class="card-desc" style="margin-bottom:1rem;">
-            {{ v.bio or "Profissional disponível para atendimentos e consultorias rurais." }}
-          </p>
-          {% if v.crmv %}
-            <p class="card-meta" style="margin-bottom:1rem;">CRMV: {{ v.crmv }}</p>
-          {% endif %}
-          <a href="{{ url_for('message_vet', vet_id=v.id) }}" class="btn btn-primary btn-sm btn-full">Entrar em contato</a>
-        </div>
-      </div>
-    {% else %}
-      <div class="empty" style="grid-column:1/-1;padding:5rem 2rem;">
-        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
-        <p>Nenhum veterinário cadastrado ainda.</p>
-      </div>
-    {% endfor %}
-  </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty" style="margin-top:3rem;">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24">
+        <path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+      </svg>
+      <p>Nenhum veterinário cadastrado ainda.</p>
+    </div>
+  {% endif %}
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.vets-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.vet-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem 1.5rem;
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 1.25rem;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s, border-color .2s;
+}
+.vet-item:hover { box-shadow: var(--shadow-md); border-color: rgba(3,76,0,.2); }
+.vet-item-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--field), var(--soil));
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.vet-item-name { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:var(--soil); }
+.vet-item-city { font-size:0.82rem; color:var(--muted); margin-top:0.15rem; }
+.vet-item-crmv { font-size:0.78rem; color:var(--muted); margin-top:0.1rem; }
+.vet-item-bio  { font-size:0.83rem; color:var(--muted); margin-top:0.4rem; line-height:1.5; }
+.vet-item-action { display:flex; flex-direction:column; gap:0.5rem; flex-shrink:0; }
+
+@media (max-width:640px) {
+  .vet-item { grid-template-columns: 44px 1fr; }
+  .vet-item-action { grid-column: 1/-1; flex-direction:row; }
+}
+</style>
 {% endblock %}

@@ -26,18 +26,18 @@
 
         <h2 style="font-size:1.2rem;margin-bottom:0.25rem;">{{ g.user.name }}</h2>
         <p class="card-meta" style="margin-bottom:1rem;">
-          {% if g.user.role == 'produtor' %}🌱 Produtor Rural
-          {% elif g.user.role == 'servidor' %}🔧 Prestador de Serviços
-          {% elif g.user.role == 'veterinario' %}🩺 Veterinário
-          {% else %}👤 Usuário{% endif %}
-          {% if g.user.city %}<br>📍 {{ g.user.city }}{% endif %}
+          {% if g.user.role == 'produtor' %}Produtor Rural
+          {% elif g.user.role == 'servidor' %}Prestador de Servicos
+          {% elif g.user.role == 'veterinario' %}Veterinario
+          {% else %}Usuario{% endif %}
+          {% if g.user.city %}<br>{{ g.user.city }}{% endif %}
         </p>
 
         {% if g.user.role == 'veterinario' %}
           {% if g.user.is_vet_verified %}
-            <span class="badge badge-green" style="margin-bottom:1rem;">✓ Verificado</span>
+            <span class="badge badge-green" style="margin-bottom:1rem;">Verificado</span>
           {% else %}
-            <span class="badge badge-gold" style="margin-bottom:1rem;">Aguardando verificação</span>
+            <span class="badge badge-gold" style="margin-bottom:1rem;">Aguardando verificacao</span>
           {% endif %}
         {% endif %}
 
