@@ -1,122 +1,121 @@
 {% extends "base.html" %}
-{% block title %}CONCOOP — Conectando o campo{% endblock %}
+{% from "_carousel.html" import render_carousel %}
+{% from "_product_card.html" import product_card %}
+
+{% block title %}CONCOOP — Rede do Produtor Rural{% endblock %}
 
 {% block content %}
 <div class="container">
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-inner">
-      <div class="hero-label">
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
-        Plataforma do Produtor Rural
-      </div>
-      <h1>A rede que conecta quem produz ao campo</h1>
-      <p>Anuncie produtos, consulte veterinarios e encontre compradores — tudo em um so lugar.</p>
-      <div class="hero-btns">
-        {% if not g.user %}
-          <a href="{{ url_for('register') }}" class="btn btn-gold btn-lg">Criar minha conta</a>
-          <a href="{{ url_for('login') }}"    class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,.35);color:#fff;">Ja tenho conta</a>
-        {% else %}
-          <a href="{{ url_for('dashboard') }}"   class="btn btn-gold btn-lg">Meu painel</a>
-          <a href="{{ url_for('marketplace') }}" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,.35);color:#fff;">Ver mercado</a>
-        {% endif %}
-      </div>
-    </div>
-  </section>
+  {{ render_carousel("hero-carousel", [
+    {
+      "label": "Rede Cooperativa Rural",
+      "title": "De produtor<br>para produtor.",
+      "text": "Compre, venda, consulte veterinários e divulgue serviços. Uma plataforma construída para quem trabalha no campo.",
+      "image": url_for('static', filename='img/carousel-field.jpg'),
+      "visual": "logo",
+      "btns": [
+        {"href": url_for('register') if not g.user else url_for('marketplace'), "text": "Criar conta gratuita" if not g.user else "Ver ofertas", "class": "btn-hero-light btn-lg"},
+        {"href": url_for('login') if not g.user else url_for('dashboard'), "text": "Entrar" if not g.user else "Meu painel", "class": "btn-hero-outline btn-lg"}
+      ]
+    },
+    {
+      "label": "Mercado Rural",
+      "title": "Compre e venda<br>direto do campo.",
+      "text": "Anuncie seus produtos e encontre ofertas de outros produtores da região, sem intermediários.",
+      "image": url_for('static', filename='img/carousel-harvest.jpg'),
+      "visual": "img/carousel-harvest.jpg",
+      "image_alt": "Colheita rural",
+      "btns": [
+        {"href": url_for('marketplace'), "text": "Ver ofertas", "class": "btn-hero-light btn-lg"},
+        {"href": url_for('new_product') if g.user else url_for('register'), "text": "Anunciar produto" if g.user else "Começar agora", "class": "btn-hero-outline btn-lg"}
+      ]
+    },
+    {
+      "label": "Saúde Animal",
+      "title": "Veterinários<br>ao seu alcance.",
+      "text": "Encontre profissionais verificados, tire dúvidas e solicite atendimento para o seu rebanho.",
+      "image": url_for('static', filename='img/carousel-cattle.jpg'),
+      "visual": "img/carousel-cattle.jpg",
+      "image_alt": "Gado no campo",
+      "btns": [
+        {"href": url_for('vets'), "text": "Ver veterinários", "class": "btn-hero-light btn-lg"},
+        {"href": url_for('ajuda_animal'), "text": "Ajuda animal", "class": "btn-hero-outline btn-lg"}
+      ]
+    },
+    {
+      "label": "Comunidade",
+      "title": "Serviços e<br>parcerias locais.",
+      "text": "Divulgue serviços rurais, conecte-se com a comunidade e fortaleça a cooperativa da sua região.",
+      "image": url_for('static', filename='img/carousel-community.jpg'),
+      "visual": "img/carousel-community.jpg",
+      "image_alt": "Produtores rurais",
+      "btns": [
+        {"href": url_for('servicos'), "text": "Ver serviços", "class": "btn-hero-light btn-lg"},
+        {"href": url_for('novo_servico') if g.user else url_for('register'), "text": "Oferecer serviço" if g.user else "Participar", "class": "btn-hero-outline btn-lg"}
+      ]
+    }
+  ]) }}
 
-  <!-- ESTATÍSTICAS -->
-  <div class="stat-grid" style="margin-bottom:3rem;">
+  <div class="stat-grid mb-3">
     <div class="stat-card">
-      <div class="stat-number">{{ products|length }}+</div>
-      <div class="stat-label">Produtos anunciados</div>
+      <div class="stat-number">{{ products|length }}</div>
+      <div class="stat-label">Produtos</div>
     </div>
     <div class="stat-card">
-      <div class="stat-number">{{ vets|length }}+</div>
-      <div class="stat-label">Veterinarios verificados</div>
+      <div class="stat-number">{{ vets|length }}</div>
+      <div class="stat-label">Veterinarios</div>
     </div>
     <div class="stat-card">
       <div class="stat-number">100%</div>
-      <div class="stat-label">Gratuito para produtores</div>
+      <div class="stat-label">Gratuito</div>
     </div>
     <div class="stat-card">
       <div class="stat-number">24h</div>
-      <div class="stat-label">Suporte da comunidade</div>
+      <div class="stat-label">Comunidade</div>
     </div>
   </div>
 
-  <!-- PRODUTOS RECENTES -->
   <section class="section">
     <div class="section-header">
       <h2>Ofertas recentes</h2>
-      <a href="{{ url_for('marketplace') }}">Ver todas</a>
+      <a href="{{ url_for('marketplace') }}">Ver tudo →</a>
     </div>
-
-    <div class="market-grid">
-      {% for p in products %}
-        <article class="market-card">
-          <div class="market-card-img">
-            {% if p.image_path %}
-              <img src="{{ url_for('static', filename=p.image_path) }}" alt="{{ p.title }}">
-            {% else %}
-              <div class="market-card-img-placeholder">
-                <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24">
-                  <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
-                  <path d="M16 3H8l-2 4h12l-2-4z"/>
-                </svg>
-              </div>
-            {% endif %}
-          </div>
-          <div class="market-card-body">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
-              <span class="card-tag tag-green" style="margin-bottom:0;">Produto Rural</span>
-              {% if p.city %}<span style="font-size:0.75rem;color:var(--muted);">{{ p.city }}</span>{% endif %}
-            </div>
-            <h3 class="market-card-title">{{ p.title }}</h3>
-            <p class="market-card-producer">{{ p.producer_name }}</p>
-            <p class="market-card-desc">{{ p.description|truncate(90) }}</p>
-            {% if p.price %}<p class="market-card-price">R$ {{ p.price }}</p>{% endif %}
-            <div class="market-card-actions">
-              <a href="{{ url_for('profile', user_id=p.producer_id) }}" class="btn btn-outline btn-sm">Produtor</a>
-              {% if g.user and g.user.id != p.producer_id %}
-                <a href="{{ url_for('chat', user_id=p.producer_id, product_id=p.id) }}" class="btn btn-primary btn-sm">Mensagem</a>
-              {% endif %}
-            </div>
-          </div>
-        </article>
+    <div class="product-grid product-grid--home">
+      {% for p in products[:8] %}
+        {{ product_card(p, chat_label='Mensagem') }}
       {% else %}
-        <div class="empty" style="grid-column:1/-1;">
-          <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <div class="empty">
+          <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
-            <path d="M16 3H8l-2 4h12l-2-4z"/>
           </svg>
-          <p>Nenhum produto cadastrado ainda.</p>
+          <p>Nenhum produto ainda. Seja o primeiro a anunciar.</p>
         </div>
       {% endfor %}
     </div>
   </section>
 
-  <!-- VETERINÁRIOS -->
   {% if vets %}
   <section class="section">
     <div class="section-header">
-      <h2>Veterinarios em destaque</h2>
-      <a href="{{ url_for('vets') }}">Ver todos</a>
+      <h2>Veterinarios disponiveis</h2>
+      <a href="{{ url_for('vets') }}">Ver todos →</a>
     </div>
     <div class="vets-row">
       {% for v in vets[:4] %}
         <div class="vet-item">
           <div class="vet-item-avatar">{{ v.name[0]|upper }}</div>
-          <div class="vet-item-info">
-            <div style="display:flex;align-items:center;gap:0.6rem;">
-              <h3 class="vet-item-name">{{ v.name }}</h3>
-              <span class="badge badge-green" style="font-size:0.68rem;">Verificado</span>
+          <div>
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+              <span class="vet-item-name">{{ v.name }}</span>
+              <span class="badge badge-green">Verificado</span>
             </div>
             {% if v.city %}<p class="vet-item-city">{{ v.city }}</p>{% endif %}
             {% if v.bio %}<p class="vet-item-bio">{{ v.bio|truncate(100) }}</p>{% endif %}
           </div>
           <div class="vet-item-action">
             <a href="{{ url_for('message_vet', vet_id=v.id) }}" class="btn btn-primary btn-sm">Contatar</a>
+            <a href="{{ url_for('profile', user_id=v.id) }}" class="btn btn-outline btn-sm">Perfil</a>
           </div>
         </div>
       {% endfor %}
@@ -125,60 +124,4 @@
   {% endif %}
 
 </div>
-{% endblock %}
-
-{% block scripts %}
-<style>
-.market-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.25rem;
-}
-.market-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: transform .2s, box-shadow .2s;
-  display: flex;
-  flex-direction: column;
-}
-.market-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-.market-card-img { width:100%; height:160px; overflow:hidden; background:var(--cream); flex-shrink:0; }
-.market-card-img img { width:100%; height:100%; object-fit:cover; transition:transform .3s; }
-.market-card:hover .market-card-img img { transform:scale(1.04); }
-.market-card-img-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--muted); background:linear-gradient(135deg,#f0fdf4,#e7e8c3); }
-.market-card-body { padding:1rem; display:flex; flex-direction:column; flex:1; }
-.market-card-title { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:var(--soil); margin-bottom:0.15rem; line-height:1.3; }
-.market-card-producer { font-size:0.75rem; color:var(--muted); margin-bottom:0.4rem; }
-.market-card-desc { font-size:0.8rem; color:var(--muted); line-height:1.5; flex:1; }
-.market-card-price { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:var(--field-dim); margin-top:0.5rem; }
-.market-card-actions { display:flex; gap:0.5rem; margin-top:0.75rem; flex-wrap:wrap; }
-
-.vets-row { display:flex; flex-direction:column; gap:0.85rem; }
-.vet-item {
-  background:var(--white); border:1px solid var(--border); border-radius:var(--r-lg);
-  padding:1.1rem 1.5rem; display:grid; grid-template-columns:48px 1fr auto;
-  gap:1.1rem; align-items:center; box-shadow:var(--shadow-sm);
-  transition:box-shadow .2s, border-color .2s;
-}
-.vet-item:hover { box-shadow:var(--shadow-md); border-color:rgba(3,76,0,.2); }
-.vet-item-avatar {
-  width:48px; height:48px; border-radius:50%;
-  background:linear-gradient(135deg,var(--field),var(--soil));
-  color:#fff; font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700;
-  display:grid; place-items:center; flex-shrink:0;
-}
-.vet-item-name { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:var(--soil); }
-.vet-item-city { font-size:0.8rem; color:var(--muted); margin-top:0.1rem; }
-.vet-item-crmv { font-size:0.75rem; color:var(--muted); margin-top:0.1rem; }
-.vet-item-bio  { font-size:0.8rem; color:var(--muted); margin-top:0.35rem; line-height:1.5; }
-.vet-item-action { display:flex; flex-direction:column; gap:0.4rem; flex-shrink:0; }
-
-@media (max-width:640px) {
-  .vet-item { grid-template-columns:40px 1fr; }
-  .vet-item-action { grid-column:1/-1; flex-direction:row; }
-}
-</style>
 {% endblock %}
